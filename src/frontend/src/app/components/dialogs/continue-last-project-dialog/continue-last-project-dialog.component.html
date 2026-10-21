@@ -1,0 +1,34 @@
+<div class="modal-header h-line-modal-bottom">
+  <h4 class="modal-title text-light" id="modal-basic-title">
+    Continue on last project?
+  </h4>
+  <button
+    type="button"
+    class="btn-close btn-close-white"
+    aria-label="Close"
+    (click)="modal.dismiss()"
+  ></button>
+</div>
+<div class="modal-body text-light">
+  You have previously worked on the event-log <code>{{ projectName }}</code
+  >.
+  <br />
+  Do you want to continue where you left off?
+</div>
+<div class="modal-footer h-line-modal-top">
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="modal.dismiss()"
+  >
+    No
+  </button>
+  <button
+    type="button"
+    class="btn btn-success"
+    ngbAutofocus
+    (click)="modal.close()"
+  >
+    Yes
+  </button>
+</div>

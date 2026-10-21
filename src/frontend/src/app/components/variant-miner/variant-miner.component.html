@@ -1,0 +1,710 @@
+<div class="variant-miner-mainblock h-100 d-flex flex-column">
+  <div class="variant-miner-container" #variantMiner>
+    <div *ngIf="showControls" @collapse>
+      <div class="control-container">
+        <form
+          [formGroup]="variantMinerConfigInput"
+          (ngSubmit)="onSubmit()"
+          class="mine-config-form"
+        >
+          <div class="form-select-element">
+            <label for="frequent_mining_strat" class="input-label"
+            >Support Counting Strategy:
+            </label>
+            <select
+              formControlName="frequent_mining_strat"
+              class="form-select input-selector cursor-pointer"
+            >
+              <option
+                [ngValue]="FrequentMiningStrategy.TraceTransaction"
+                selected
+              >
+                Trace Transaction
+              </option>
+              <option [ngValue]="FrequentMiningStrategy.VariantTransaction">
+                Variant Transaction
+              </option>
+              <option [ngValue]="FrequentMiningStrategy.TraceOccurence">
+                Trace Root-Occurence
+              </option>
+              <option [ngValue]="FrequentMiningStrategy.VariantOccurence">
+                Variant Root-Occurence
+              </option>
+            </select>
+          </div>
+
+          <div class="form-select-element">
+            <label for="frequent_mining_algo" class="input-label"
+            >Algorithm:
+            </label>
+            <select
+              formControlName="frequent_mining_algo"
+              class="form-select input-selector cursor-pointer"
+            >
+              <option
+                [ngValue]="FrequentMiningAlgorithm.ValidTreeMiner"
+                selected
+              >
+                Valid Tree Miner
+              </option>
+              <option [ngValue]="FrequentMiningAlgorithm.ClosedMaximalMiner">
+                Blanket Tree Miner
+              </option>
+              <option [ngValue]="FrequentMiningAlgorithm.EfPatternMiner">
+                EF Pattern Miner
+              </option>
+            </select>
+          </div>
+
+          <div
+            class="form-element d-none"
+            *ngIf="
+              variantMinerConfigInput.value.frequent_mining_algo ===
+              FrequentMiningAlgorithm.ClosedMaximalMiner
+            "
+          >
+            <label for="cm_tree_strategy" class="input-label">Type: </label>
+            <select
+              formControlName="cm_tree_strategy"
+              class="form-select input-selector"
+            >
+              <option
+                [ngValue]="FrequentMiningCMStrategy.ClosedMaximal"
+                selected
+              >
+                Closed and Maximal
+              </option>
+              <option [ngValue]="FrequentMiningCMStrategy.OnlyMaximal">
+                Only Maximal
+              </option>
+            </select>
+          </div>
+
+          <div class="form-select-element">
+            <label for="size" class="input-label">
+              Maximum Size:
+              <i
+                class="bi bi-question-circle-fill"
+                ngbTooltip="The size of a pattern is not the number of activities
+                but the number of nodes in its tree representation. Therefore the
+                size of a sequence without any parallelism is its number of
+                activities plus one."
+                triggers="hover"
+                container="body"
+              ></i>
+            </label>
+            <input
+              id="size"
+              type="number"
+              formControlName="size"
+              class="input-field-number"
+              step="1"
+              min="0"
+            />
+          </div>
+
+          <div class="form-select-element">
+            <label for="min_sup" class="input-label">Support: </label>
+            <div>
+              <input
+                formControlName="rel_sup"
+                class="input-field-number"
+                type="number"
+                step=".01"
+                min="0"
+              />%
+            </div>
+          </div>
+          <div class="rel-sup-input">
+            <div class="sup-selector">
+              <ngx-slider
+                [(value)]="relSup"
+                [options]="supportSliderOptions"
+                (valueChange)="relSupChanged()"
+              ></ngx-slider>
+            </div>
+          </div>
+          <div class="form-element">
+            <div class="abs-sup-input">
+              <input
+                id="min_sup"
+                formControlName="min_sup"
+                class="input-field-number"
+                type="number"
+                step="1"
+                min="0"
+                max="{{
+                  variantMinerConfigInput.value.frequent_mining_strat ===
+                    FrequentMiningStrategy.TraceTransaction ||
+                  variantMinerConfigInput.value.frequent_mining_strat ===
+                    FrequentMiningStrategy.TraceOccurence
+                    ? totalTraces
+                    : totalVariants
+                }}"
+              />
+              of
+              {{
+                (variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceTransaction ||
+                  variantMinerConfigInput.value.frequent_mining_strat ===
+                  FrequentMiningStrategy.TraceOccurence
+                    ? totalTraces
+                    : totalVariants
+                ) | number
+              }}
+            </div>
+          </div>
+
+          <div
+            class="form-element"
+            *ngIf="
+              this.variantMinerConfigInput.value.frequent_mining_algo !==
+              FrequentMiningAlgorithm.EfPatternMiner
+            "
+          >
+            <input
+              id="artifical_start"
+              type="checkbox"
+              formControlName="artifical_start"
+              class="input-field"
+            />
+            <label for="artifical_start" class="input-label"
+            >Mine prefixes and suffixes
+            </label>
+          </div>
+
+          <div
+            class="form-element last-element"
+            *ngIf="
+              this.variantMinerConfigInput.value.frequent_mining_algo !==
+              FrequentMiningAlgorithm.EfPatternMiner
+            "
+          >
+            <input
+              id="fold_loop"
+              type="checkbox"
+              formControlName="fold_loop"
+              class="input-field"
+            />
+            <label for="fold_loop" class="input-label">Fold Loops</label>
+          </div>
+
+          <div
+            class="form-select-element last-element"
+            *ngIf="
+              this.variantMinerConfigInput.value.fold_loop &&
+              this.variantMinerConfigInput.value.frequent_mining_algo !==
+                FrequentMiningAlgorithm.EfPatternMiner
+            "
+          >
+            <label for="loop" class="input-label">Loop Threshold: </label>
+            <input
+              id="loop"
+              type="number"
+              min="1"
+              step="1"
+              formControlName="loop"
+              class="input-field-number"
+            />
+          </div>
+
+          <div class="form-element last-element">
+            <button type="submit" class="button variant-miner-submit-button">
+              Mine
+            </button>
+          </div>
+        </form>
+        <div *ngIf="variantPatterns.length > 0" class="mining-result-overview">
+          <span class="result-span">
+            <span class="result-overview-label">Total Patterns:</span>
+            {{ nValid | number }}
+          </span>
+          <span class="result-span">
+            <span class="result-overview-label">Closed Patterns:</span>
+            {{ nClosed | number }}</span
+          >
+          <span class="result-span">
+            <span class="result-overview-label">Maximal Patterns:</span>
+            {{ nMaximal | number }}
+          </span>
+          <span></span>
+          <span class="result-span">
+            <span class="result-overview-label">Maximal Support:</span>
+            {{ maxSup | number }}</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="pattern-table-container">
+      <div class="bg-dark btn-tool-bar">
+        <ng-template #toolTip2>
+          calculate conformance checking statistics
+          <br/><i class="bi bi-question-square text-secondary"> unknown</i>
+          <br/><i class="bi bi-hourglass-split text-secondary">
+          being calculated</i
+        >
+          <br/><i class="bi bi-check-square text-success">
+          variant fits model</i
+        >
+          <br/><i class="bi bi-x-square text-danger">
+          variant does not fit model</i
+        >
+          <br/><i class="bi bi-check-square text-warning"></i>
+          <i class="bi bi-x-square text-warning">
+            outdated results (model has changed)</i
+          >
+          <br/><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
+        </ng-template>
+        <button
+          [ngbTooltip]="toolTip2"
+          triggers="hover"
+          container="body"
+          class="button"
+          (click)="computeAlignments()"
+          [disabled]="
+            !processTree ||
+            lastExecutedMiningAlgorithm ===
+              FrequentMiningAlgorithm.EfPatternMiner
+          "
+        >
+          <i class="bi bi-layers-fill btn-icon"></i>
+          <div @collapseText class="button-text px-1" *ngIf="!collapse">
+            conformance check
+          </div>
+        </button>
+
+        <div class="vr"></div>
+        <ng-container
+          *ngIf="
+            !(areAllPatternSkipGroups() && displayedVariantsPatterns.length > 0)
+          "
+        >
+          <button
+            class="button"
+            [disabled]="!isAnyPatternSelected()"
+            (click)="addSelectedPatternsToLog()"
+            ngbTooltip="Add pattern(s) to log"
+            triggers="hover"
+            container="body"
+          >
+            <i
+              class="bi bi-database-add"
+              [ngClass]="{
+                'text-success': isAnyPatternSelected()
+              }"
+            ></i>
+
+            <div @collapseText class="button-text px-1" *ngIf="!collapse">
+              Add pattern(s) to log
+            </div>
+          </button>
+          <div class="vr"></div>
+        </ng-container>
+
+        <button
+          *ngIf="addLpmFeatures"
+          container="body"
+          class="button"
+          (click)="discoverLpms()"
+          [disabled]="
+            lastExecutedMiningAlgorithm !==
+            FrequentMiningAlgorithm.EfPatternMiner
+          "
+        >
+          <i class="bi bi-diagram-2-fill btn-icon"></i>
+          <div @collapseText class="button-text px-1" *ngIf="!collapse">
+            discover local process models
+          </div>
+        </button>
+
+        <div class="vr"></div>
+
+        <button
+          class="button ms-auto"
+          ngbTooltip="apply filters to variants"
+          triggers="hover"
+          id="dropdownMenuButton1"
+          data-bs-toggle="dropdown"
+          data-bs-reference="parent"
+          data-bs-auto-close="false"
+          aria-expanded="false"
+          container="body"
+          (click)="filterDropDownOpen = !filterDropDownOpen"
+          #dropdownButton
+        >
+          <i class="bi bi-funnel"></i>
+        </button>
+
+        <div
+          class="dropdown-menu filter-drop-down dropdown-menu-end"
+          aria-labelledby="dropdownMenuButton1"
+          [style.max-height.px]="currentHeight"
+          #activitiesFilter
+        >
+          <div class="filter-drop-down-content">
+            <div class="filter-option-container">
+              <span>Size:</span>
+              <div class="slider-container sup-selector">
+                <ngx-slider
+                  [(value)]="kFilter.low"
+                  [(highValue)]="kFilter.high"
+                  [options]="kFilter.config"
+                  (userChangeEnd)="handleFilterChange($event)"
+                ></ngx-slider>
+              </div>
+            </div>
+            <div
+              class="radio-content"
+              *ngIf="
+                lastExecutedMiningAlgorithm !==
+                FrequentMiningAlgorithm.EfPatternMiner
+              "
+            >
+              <span>Model Alignment:</span>
+              <div class="btn-group btn-group-sm radio-container" role="group">
+                <ng-template
+                  ngFor
+                  let-choice
+                  [ngForOf]="alignChecks"
+                  let-i="index"
+                >
+                  <input
+                    checked
+                    type="checkbox"
+                    class="btn-check"
+                    name="btncheckbox"
+                    id="{{ 'AlignCheck' + i }}"
+                    autocomplete="off"
+                    (change)="
+                      onCheckChange($event, alignmentFilterList, choice);
+                      this.handleFilterChange($event)
+                    "
+                  />
+                  <label
+                    class="btn btn-outline-dark"
+                    for="{{ 'AlignCheck' + i }}"
+                  >
+                    {{ choice.desc }}</label
+                  >
+                </ng-template>
+              </div>
+            </div>
+
+            <div class="filter-option-container">
+              <span>Support:</span>
+              <div class="slider-container sup-selector">
+                <ngx-slider
+                  [(value)]="supFilter.low"
+                  [(highValue)]="supFilter.high"
+                  [options]="supFilter.config"
+                  (userChangeEnd)="handleFilterChange($event)"
+                ></ngx-slider>
+              </div>
+            </div>
+            <div class="radio-content">
+              <span> Type: </span>
+              <div class="btn-group btn-group-sm radio-container" role="group">
+                <ng-template
+                  ngFor
+                  let-choice
+                  [ngForOf]="closedMaximalChecks"
+                  let-i="index"
+                >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="btnradio"
+                    id="{{ 'Radio' + i }}"
+                    autocomplete="off"
+                    (change)="
+                      onCheckRadioChange(choice.desc, choice.filterFnc);
+                      this.handleFilterChange($event)
+                    "
+                    [checked]="choice.desc === 'Valid'"
+                  />
+                  <label class="btn btn-outline-dark" for="{{ 'Radio' + i }}">
+                    {{ choice.desc }}</label
+                  >
+                </ng-template>
+              </div>
+            </div>
+            <div class="radio-content">
+              <span> Infix Types:</span>
+              <div class="btn-group btn-group-sm radio-container" role="group">
+                <ng-template
+                  ngFor
+                  let-choice
+                  [ngForOf]="infixChecks"
+                  let-i="index"
+                >
+                  <input
+                    checked
+                    type="checkbox"
+                    class="btn-check"
+                    name="btncheckbox"
+                    id="{{ 'InfixCheck' + i }}"
+                    autocomplete="off"
+                    (change)="
+                      onCheckChange($event, infixFilterList, choice);
+                      this.handleFilterChange($event)
+                    "
+                  />
+                  <label
+                    class="btn btn-outline-dark"
+                    for="{{ 'InfixCheck' + i }}"
+                  >
+                    {{ choice.desc }}</label
+                  >
+                </ng-template>
+              </div>
+            </div>
+            <app-variant-miner-activities-filter
+              *ngIf="filterDropDownOpen && minerVisibile"
+              [activityNames]="activityNames"
+              [activityNamesFilter]="activityNamesFilter"
+              (activityButtonClick)="handleActivityButtonClick($event)"
+              class="activities-filter"
+            >
+            </app-variant-miner-activities-filter>
+          </div>
+        </div>
+
+        <button
+          class="button"
+          ngbTooltip="export the process variant"
+          triggers="hover"
+          container="body"
+          (click)="exportVariantMiner()"
+        >
+          <i class="bi bi-save"></i>
+        </button>
+      </div>
+
+      <div class="control-button-container">
+        <button
+          class="btn control-button"
+          type="button"
+          (click)="showControls = !showControls"
+        >
+          <i *ngIf="showControls" class="bi bi-chevron-left btn-icon"></i>
+          <i *ngIf="!showControls" class="bi bi-chevron-right btn-icon"></i>
+        </button>
+      </div>
+
+      <div class="pattern-table-container-secondary">
+        <table class="pattern-table">
+          <thead class="user-select-none sticky-header-row">
+          <tr>
+            <th class="text-center header-text">No.</th>
+            <th class="text-center header-text">
+              <app-variant-selection-button
+                *ngIf="
+                    !(
+                      areAllPatternSkipGroups() &&
+                      displayedVariantsPatterns.length > 0
+                    )
+                  "
+                [isSelected]="
+                    areAllPatternsSelected() &&
+                    displayedVariantsPatterns.length > 0
+                  "
+                (selectionChanged)="setAllPatternsSelectionState($event)"
+                tooltipText="(un)select all variants"
+              >
+              </app-variant-selection-button>
+            </th>
+            <th resizeable class="text-center" rowspan="1" [margin]="-4">
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.size)"
+                  [ngClass]="{
+                      'selected-header-text':
+                        currentSortKey === VariantSortKey.size
+                    }"
+                >
+                  Size
+                </div>
+              </div>
+            </th>
+            <th
+              resizeable
+              class="text-center"
+              rowspan="1"
+              [margin]="-4"
+              *ngIf="
+                  lastExecutedMiningAlgorithm !==
+                  FrequentMiningAlgorithm.EfPatternMiner
+                "
+            >
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.conformance)"
+                  [ngClass]="{
+                      'selected-header-text':
+                        currentSortKey === VariantSortKey.conformance
+                    }"
+                >
+                  Fitting
+                </div>
+              </div>
+            </th>
+            <th resizeable class="text-center" rowspan="1" [margin]="-4">
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.support)"
+                  [ngClass]="{
+                      'selected-header-text':
+                        currentSortKey === VariantSortKey.support
+                    }"
+                >
+                  Support
+                </div>
+              </div>
+            </th>
+            <th resizeable class="text-center" colspan="2" [margin]="-4">
+              <div class="header-text-container">
+                <div
+                  class="header-text"
+                  (click)="sort(VariantSortKey.closed)"
+                >
+                  Type
+                </div>
+                <i
+                  *ngIf="
+                      currentSortKey === VariantSortKey.closed ||
+                      currentSortKey === VariantSortKey.maximal
+                    "
+                  [ngClass]="{
+                      'bi-sort-down-alt': ascending,
+                      'bi-sort-down': !ascending
+                    }"
+                ></i>
+              </div>
+            </th>
+            <th resizeable class="text-start" rowspan="1" [margin]="-4">
+              <div
+                class="header-text-container variant-header"
+                [style.min-width.px]="maxWidth + 90"
+              >
+                <div class="header-text">Variant</div>
+                <i
+                  class="bi"
+                  [ngClass]="{
+                      'bi-sort-up': ascending,
+                      'bi-sort-down': !ascending,
+                      invisible: true
+                    }"
+                ></i>
+              </div>
+            </th>
+          </tr>
+          <tr class="sticky-header-row">
+            <th>
+              <!-- Placeholder for No. column -->
+            </th>
+            <th>
+              <!-- Placeholder for column showing selection -->
+            </th>
+            <th class="text-center">
+              <i
+                [ngClass]="{
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(currentSortKey === VariantSortKey.size)
+                  }"
+              ></i>
+            </th>
+            <th
+              class="text-center"
+              *ngIf="
+                  lastExecutedMiningAlgorithm !==
+                  FrequentMiningAlgorithm.EfPatternMiner
+                "
+            >
+              <i
+                [ngClass]="{
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(currentSortKey === VariantSortKey.conformance)
+                  }"
+              ></i>
+            </th>
+            <th class="text-center">
+              <i
+                [ngClass]="{
+                    'bi-sort-numeric-down': ascending,
+                    'bi-sort-numeric-down-alt': !ascending,
+                    invisible: !(currentSortKey === VariantSortKey.support)
+                  }"
+              ></i>
+            </th>
+            <th class="confidence-names text-center">
+              <div
+                (click)="sort(VariantSortKey.closed)"
+                class="header-text"
+                [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.closed
+                  }"
+              >
+                Closed
+              </div>
+            </th>
+            <th class="confidence-names text-center">
+              <div
+                (click)="sort(VariantSortKey.maximal)"
+                class="header-text"
+                [ngClass]="{
+                    'selected-header-text':
+                      currentSortKey === VariantSortKey.maximal
+                  }"
+              >
+                Maximal
+              </div>
+            </th>
+            <th class="confidence-names text-center">
+              <div class="header-text"></div>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr
+            app-variant-miner-pattern
+            *ngFor="let pattern of displayedVariantsPatterns; let i = index"
+            [id]="i + 1"
+            [pattern]="pattern"
+            [showConformance]="
+                lastExecutedMiningAlgorithm !==
+                FrequentMiningAlgorithm.EfPatternMiner
+              "
+            [rootElement]="variantMinerDiv"
+          >
+            <svg
+              appVariantDrawer
+              #fragment
+              [variant]="pattern"
+              [computeActivityColor]="computeActivityColor"
+              [onRightMouseClickCbFc]="openContextCallback"
+              [onClickCbFc]="onClickCbFc"
+              [infixType]="pattern.infixType"
+              [keepStandardView]="true"
+              [addCursorPointer]="false"
+              class="zoom-group-variant"
+            ></svg>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-variant-explorer-context-menu
+  [xPos]="contextMenu_xPos"
+  [yPos]="contextMenu_yPos"
+  [contextMenuOptions]="contextMenuOptions"
+></app-variant-explorer-context-menu>

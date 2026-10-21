@@ -1,0 +1,54 @@
+.modal-content {
+  background-color: var(--box-background-color) !important;
+}
+
+.form-select-element{
+  padding-left: 2.5px;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  flex-flow: column wrap;
+}
+
+.input-label{
+  font-size: 0.85rem;
+  height: 20px;
+}
+
+.input-selector{
+  padding: 0.125rem 0.25rem 0.125rem 0.35rem;
+  font-size: 0.85rem;
+  color: whitesmoke;
+  background-color: #343a40;
+  border: none;
+  margin: 7px;
+  width : 280px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='whitesmoke' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.input-field-number{
+  margin: 7px 0 6px 7px;
+  width: 280px;
+  border-radius: 3px;
+  background-color: #343a40;
+  box-shadow: none;
+  border: none;
+  color: whitesmoke;
+  padding: 0.125rem 0.25rem 0.125rem 0.35rem;
+  height: 26px;
+  font-size: small;
+}
+
+.form-element{
+  padding: 2.5px;
+}
+
+.submit-button{
+  background: rgb(119 117 117);
+  border-radius: 3px;
+}
+
+.reset-button{
+  background: var(--bs-danger);
+  border-radius: 3px;
+}

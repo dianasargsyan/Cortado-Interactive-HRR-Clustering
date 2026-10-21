@@ -1,0 +1,12 @@
+fastapi==0.115.12
+pydantic==2.13.5
+uvicorn==0.54.0
+cycler~=0.11.0
+networkx==3.0rc1
+python-multipart==0.0.32
+pm4py==2.4.1
+appdirs
+websockets==16.1.1
+cortado_core @git+https://github.com/juliusbrehme/cortado-core.git@f3cf7a8ea895bdb7027a7f44b4688316b8f7c2ee
+cvxopt==1.3.2
+pyinstaller~=6.6.0

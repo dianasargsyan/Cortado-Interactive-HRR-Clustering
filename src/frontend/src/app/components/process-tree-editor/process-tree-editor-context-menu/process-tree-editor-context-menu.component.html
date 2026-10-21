@@ -1,0 +1,138 @@
+<context-menu #contextMenu menuClass="custom-style">
+  <ng-template contextMenuItem [subMenu]="quickActionMenu">
+    <div>
+      <i class="bi bi-magic"></i>
+      Quick actions
+    </div>
+  </ng-template>
+
+  <ng-template contextMenuItem [subMenu]="shiftSubMenu">
+    <div>
+      <i class="bi bi-arrows-move"></i>
+      Shift
+    </div>
+  </ng-template>
+
+  <ng-template contextMenuItem [divider]="true"></ng-template>
+
+  <ng-template
+    contextMenuItem
+    (execute)="onCopy($event)"
+    [disabled]="copyDisabled"
+  >
+    <div>
+      <i class="bi bi-copy"></i>
+      Copy
+    </div>
+  </ng-template>
+  <ng-template
+    contextMenuItem
+    (execute)="onCut($event)"
+    [disabled]="cutDisabled"
+  >
+    <div>
+      <i class="bi bi-scissors"></i>
+      Cut
+    </div>
+  </ng-template>
+  <ng-template
+    contextMenuItem
+    (execute)="onPaste($event)"
+    [disabled]="pasteDisabled"
+  >
+    <div>
+      <i class="bi bi-clipboard2-fill"></i>
+      Paste
+    </div>
+  </ng-template>
+
+  <ng-template contextMenuItem [divider]="true"></ng-template>
+
+  <ng-template
+    contextMenuItem
+    (execute)="onDelete($event)"
+    [disabled]="deleteDisabled"
+    let-value
+  >
+    <div>
+      <i
+        class="bi bi-trash"
+        [ngClass]="!deleteDisabled(value) ? 'text-warning' : ''"
+      ></i>
+      Delete
+    </div>
+  </ng-template>
+
+  <ng-template contextMenuItem [divider]="true"></ng-template>
+
+  <ng-template
+    contextMenuItem
+    (execute)="onFreeze($event)"
+    [disabled]="freezeDisabled"
+    let-value
+  >
+    <div>
+      <i
+        class="bi bi-snow"
+        [ngClass]="!freezeDisabled(value) ? 'text-primary' : ''"
+      ></i>
+      Freeze
+    </div>
+  </ng-template>
+</context-menu>
+
+<context-menu #shiftSubMenu>
+  <ng-template
+    contextMenuItem
+    (execute)="onShiftLeft($event)"
+    [disabled]="shiftLeftDisabled"
+  >
+    <div>
+      <i class="bi bi-chevron-double-left"></i>
+      Left
+    </div>
+  </ng-template>
+  <ng-template
+    contextMenuItem
+    (execute)="onShiftUp($event)"
+    [disabled]="shiftUpDisabled"
+  >
+    <div>
+      <i class="bi bi-chevron-double-up"></i>
+      Up
+    </div>
+  </ng-template>
+  <ng-template
+    contextMenuItem
+    (execute)="onShiftRight($event)"
+    [disabled]="shiftRightDisabled"
+  >
+    <div>
+      <i class="bi bi-chevron-double-right"></i>
+      Right
+    </div>
+  </ng-template>
+</context-menu>
+
+<context-menu #quickActionMenu>
+  <ng-template
+    contextMenuItem
+    (execute)="onMakeOptional($event)"
+    [disabled]="makeOptionalDisabled"
+  >
+    <div>
+      <i class="bi bi-alt"></i>
+      Make subtree optional
+    </div>
+  </ng-template>
+  <ng-template
+    contextMenuItem
+    (execute)="onMakeRepeatable($event)"
+    [disabled]="makeRepeatableDisabled"
+  >
+    <div>
+      <i class="bi bi-repeat"></i>
+      Make subtree repeatable
+    </div>
+  </ng-template>
+</context-menu>

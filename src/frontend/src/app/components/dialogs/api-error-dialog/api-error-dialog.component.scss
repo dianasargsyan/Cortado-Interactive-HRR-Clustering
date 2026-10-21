@@ -1,0 +1,30 @@
+.section {
+  padding-bottom: 10px;
+}
+
+/* stylelint-disable-next-line selector-class-pattern */
+.section.stackTrace {
+  border: 1px solid gray;
+  border-radius: 5px;
+  cursor: pointer;
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .stackTraceContainer {
+    height: 200px;
+    overflow: auto;
+
+    code {
+      color: red;
+    }
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .iconContainer {
+    gap: 6px;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .iconContainer .toggleTraceIcon, .copyToClipboard {
+    cursor: pointer;
+  }
+}

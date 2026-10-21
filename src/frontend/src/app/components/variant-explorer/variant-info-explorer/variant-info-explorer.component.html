@@ -1,0 +1,151 @@
+<app-performance-progress-bar></app-performance-progress-bar>
+
+<app-variant-explorer-sidebar></app-variant-explorer-sidebar>
+
+<div class="d-flex flex-column mh-100 h-100 container-variant-explorer">
+  <div class="table-container flex-grow-1 table-responsive">
+    <table
+      class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0"
+      *ngIf="mainVariant"
+    >
+      <thead class="activity-overview-table-header">
+        <tr class="user-select-none">
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('case_id')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="Unique ID of the case"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Case ID</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-alpha-down': !ascending,
+                  'bi-sort-alpha-down-alt': ascending,
+                  invisible: sortKey !== 'case_id'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="Number of activity occurrences in the case"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Number of activities</div>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('earliest_time')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The earliest timestamp recorded in the case"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Earliest timestamp</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': !ascending,
+                  'bi-sort-numeric-down-alt': ascending,
+                  invisible: sortKey !== 'earliest_time'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('latest_time')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The latest timestamp recorded in the case"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Latest timestamp</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': !ascending,
+                  'bi-sort-numeric-down-alt': ascending,
+                  invisible: sortKey !== 'latest_time'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('total_duration')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="Duration of the case"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Total duration</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down': !ascending,
+                  'bi-sort-numeric-down-alt': ascending,
+                  invisible: sortKey !== 'total_duration'
+                }"
+              ></i>
+            </div>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <ng-container *ngIf="caseStatistics">
+          <tr
+            *ngFor="
+              let case of caseStatistics | tableSorting : sortKey : ascending
+            "
+            class="cursor-pointer"
+            (click)="createCaseInfoView(case.case_id)"
+          >
+            <td class="text-center user-select-none">
+              {{ case.case_id }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ case.activity_num }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ case.earliest_time }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ case.latest_time }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ case.total_duration }}
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>

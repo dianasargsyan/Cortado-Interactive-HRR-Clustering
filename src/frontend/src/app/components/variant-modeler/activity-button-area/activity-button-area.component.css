@@ -1,0 +1,37 @@
+.activity-button-area{
+  color: var(--text-secondary);
+  width: 100%;
+  max-height: fit-content;
+  overflow: auto auto;
+  place-content: baseline center;
+  flex-flow: row wrap;
+  align-items: center;
+  display: flex;
+  row-gap: 1px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: var(--thin-border-color) 1px solid;
+  border-bottom: var(--thin-border-color) 1px solid;
+}
+
+.activity-button{
+  cursor : pointer;
+}
+
+.activity-label{
+  font-size: smaller;
+  padding: 0 2px;
+  margin: 0 4px 0 2px;
+  background: rgb(119 117 117);
+  border-radius: 10px;
+  vertical-align: middle;
+  color: whitesmoke;
+  position: relative;
+}
+
+.button-disabled{
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
+
+}

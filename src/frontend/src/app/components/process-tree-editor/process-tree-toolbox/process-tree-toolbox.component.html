@@ -1,0 +1,88 @@
+<div class="toolbox-area bg-dark" *ngIf="showToolbox">
+  <div class="d-flex">
+    <div
+      class="d-flex flex-wrap justify-content-end align-self-start operator-buttons"
+    >
+      <button
+        *ngFor="let op of processTreeOperators | slice : 0 : 2"
+        type="button"
+        [disabled]="operatorInsertionDisabled"
+        [style.background]="operatorNodeColor"
+        [style.color]="operatorTextColor"
+        (click)="insertOperatorNode(op)"
+        [ngbTooltip]="op"
+        triggers="hover"
+        container="body"
+        placement="bottom"
+        class="btn btn-sm node-btn"
+      >
+        {{ op }}
+      </button>
+      <div class="w-100 d-block d-xl-none"></div>
+      <button
+        *ngFor="let op of processTreeOperators | slice : 2"
+        type="button"
+        [disabled]="operatorInsertionDisabled"
+        [style.background]="operatorNodeColor"
+        [style.color]="operatorTextColor"
+        (click)="insertOperatorNode(op)"
+        [ngbTooltip]="op"
+        triggers="hover"
+        container="body"
+        placement="bottom"
+        class="btn btn-sm node-btn"
+      >
+        {{ op }}
+      </button>
+    </div>
+    <div class="vr"></div>
+    <div
+      class="flew-grow-1 d-flex flex-wrap justify-content-start align-self-start activity-buttons"
+    >
+      <button
+        type="button"
+        [disabled]="activityInsertionDisabled"
+        [style.background]="computeActivityColor(ProcessTreeOperator.tau)"
+        [style.color]="computeTextColor(ProcessTreeOperator.tau)"
+        (click)="insertActivityNode(ProcessTreeOperator.tau)"
+        [ngbTooltip]="ProcessTreeOperator.tau"
+        triggers="hover"
+        container="body"
+        placement="bottom"
+        class="btn btn-sm node-btn"
+      >
+        {{ ProcessTreeOperator.tau }}
+      </button>
+      <button
+        *ngFor="let act of processTreeActivities.sort()"
+        type="button"
+        [disabled]="activityInsertionDisabled"
+        [style.background]="computeActivityColor(act)"
+        [style.color]="computeTextColor(act)"
+        (click)="insertActivityNode(act)"
+        [ngbTooltip]="act"
+        triggers="hover"
+        container="body"
+        placement="bottom"
+        class="btn btn-sm node-btn"
+      >
+        {{ act }}
+      </button>
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-center">
+  <button
+    class="button"
+    id="collapse-button"
+    (click)="showToolbox = !showToolbox"
+  >
+    <i
+      class="btn-icon bi"
+      [ngClass]="{
+        'bi-chevron-bar-up': showToolbox,
+        'bi-chevron-bar-down': !showToolbox
+      }"
+    ></i>
+  </button>
+</div>

@@ -1,0 +1,19 @@
+/* .nav-link > */
+button {
+  color: whitesmoke !important;
+
+  &.disabled {
+    color: #757575 !important;
+  }
+}
+
+.nav-link {
+  border: none !important;
+  border-radius: 0 !important;
+  border-color: rgb(84 103 239) !important;
+
+  &.active {
+    border-left-style: solid !important;
+    border-width: 5px !important;
+  }
+}

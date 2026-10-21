@@ -1,0 +1,45 @@
+<div class="lpm-explorer h-100 d-flex flex-column" #lpmExplorer>
+  <div class="lpm-explorer-container">
+    <div class="lpm-table-container" style="width: 100%">
+      <div class="lpm-table-container-secondary">
+        <table class="lpm-table">
+          <thead class="user-select-none sticky-header-row">
+            <tr>
+              <th class="text-center" style="width: 100px">
+                <div class="header-text-container">
+                  <div class="header-text">Actions</div>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="text-center border-start border-lightgrey"
+                [margin]="-4"
+              >
+                <div class="header-text-container">
+                  <div class="header-text">Local Process Model</div>
+                </div>
+              </th>
+              <th
+                resizeable
+                class="text-center border-start border-lightgrey"
+                [margin]="-4"
+              >
+                <div class="header-text-container">
+                  <div class="header-text">Patterns</div>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let lpm of lpms; let i = index"
+              app-lpm-explorer-row
+              [lpm]="lpm"
+              class="lpm-tr-divider"
+            ></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

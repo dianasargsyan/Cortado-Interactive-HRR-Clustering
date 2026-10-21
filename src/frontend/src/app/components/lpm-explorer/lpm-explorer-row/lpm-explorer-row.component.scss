@@ -1,0 +1,20 @@
+.border-lightgrey {
+  border-color: rgb(106 106 106 / 60%) !important;
+}
+
+
+.variant-spacer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.text-size {
+  font-size: 0.9rem;
+}
+
+.overflow-cell {
+  overflow: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,94 @@
+<div
+  *ngIf="hrrClusteringService.settings$ | async as settings"
+  class="d-flex flex-wrap align-items-center gap-1 px-2 py-1 bg-dark border-top border-secondary"
+  style="min-height: 32px"
+>
+  <small
+    class="text-secondary me-1"
+    ngbTooltip="Off: where an activity sits no longer counts, so neither the order nor what runs in parallel does"
+    triggers="hover"
+    container="body"
+    >Order:</small
+  >
+  <div class="btn-group btn-group-sm me-2">
+    <button
+      *ngFor="let level of levels"
+      type="button"
+      class="btn btn-outline-secondary level-button"
+      [class.active]="settings.order === level.value"
+      (click)="hrrClusteringService.setOrder(level.value)"
+    >
+      {{ level.name }}
+    </button>
+  </div>
+
+  <small
+    class="text-secondary me-1"
+    ngbTooltip="Off: how deep an activity sits inside parallel blocks no longer counts"
+    triggers="hover"
+    container="body"
+    >Nesting:</small
+  >
+  <div class="btn-group btn-group-sm me-2">
+    <button
+      *ngFor="let level of levels"
+      type="button"
+      class="btn btn-outline-secondary level-button"
+      [class.active]="settings.nesting === level.value"
+      (click)="hrrClusteringService.setNesting(level.value)"
+    >
+      {{ level.name }}
+    </button>
+  </div>
+
+  <small class="text-secondary me-1">Clusters:</small>
+  <input
+    type="number"
+    class="input-field-number me-2"
+    min="1"
+    [value]="settings.nClusters"
+    (change)="setNClusters($any($event.target).value)"
+  />
+
+  <span
+    *ngFor="let group of settings.sameActivities"
+    class="badge bg-primary d-inline-flex align-items-center gap-1"
+  >
+    <i class="bi bi-arrow-left-right"></i>
+    Same: {{ group.join(' = ') }}
+    <button
+      type="button"
+      class="btn-close btn-close-white ms-1"
+      style="font-size: 0.55em"
+      (click)="hrrClusteringService.removeSameActivities(group)"
+    ></button>
+  </span>
+
+  <span
+    *ngFor="let activity of settings.ignoredActivities"
+    class="badge bg-secondary d-inline-flex align-items-center gap-1"
+  >
+    <i class="bi bi-eye-slash"></i>
+    Ignored: {{ activity }}
+    <button
+      type="button"
+      class="btn-close btn-close-white ms-1"
+      style="font-size: 0.55em"
+      (click)="hrrClusteringService.toggleIgnored(activity)"
+    ></button>
+  </span>
+
+  <ng-container *ngIf="hrrClusteringService.result$ | async as result">
+    <small class="text-secondary ms-auto me-2">{{ status(result) }}</small>
+    <small *ngIf="result.setAside.length > 0" class="text-warning me-2"
+      >{{ result.setAside.length }} constraint(s) set aside: a variant without
+      activities</small
+    >
+  </ng-container>
+  <button
+    class="btn btn-sm btn-outline-secondary"
+    (click)="hrrClusteringService.recluster(true)"
+  >
+    <i class="bi bi-arrow-clockwise me-1"></i>Recluster from scratch
+  </button>
+</div>

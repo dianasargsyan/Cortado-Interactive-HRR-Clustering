@@ -1,0 +1,88 @@
+:host ::ng-deep {
+  .form-group {
+    resize: both;
+    overflow: auto;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bar {
+    background: #5b5b5b;
+    height: 2px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-selection {
+    background: var(--text-secondary);
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: var(--text-secondary);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer::after {
+    display: none;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+    color: var(--text-secondary);
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-limit {
+    font-weight: lighter;
+    color: #5b5b5b;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick {
+    width: 1px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #5b5b5b;
+    top: -1px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
+    background: var(--text-secondary);
+  }
+
+  .submit-button {
+    background: rgb(119 117 117);
+    border-radius: 3px;
+  }
+
+  .dropdown-list {
+    position: relative !important;
+  }
+
+  .form-select {
+    background-color: var(--box-background-color);
+    padding: 0 !important;
+    margin-top: 6px;
+    resize: both;
+  }
+
+  .activities-selection-btn {
+    border-style: solid;
+    border-width: thin;
+    border-radius: 3px;
+    opacity: 0.5;
+  }
+
+  .reset-activities-btn:hover {
+    filter: brightness(1.75);
+  }
+
+  .row {
+    gap: 5px;
+  }
+
+  .d-flex {
+    gap: 10px;
+  }
+
+}

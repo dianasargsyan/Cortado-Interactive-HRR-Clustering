@@ -1,0 +1,42 @@
+<div
+  *ngIf="isConformanceCalcInProgress; else conformanceToggle"
+  class="d-flex flex-column align-items-center"
+>
+  <div
+    class="spinner-border spinner-border-sm text-primary"
+    role="status"
+  ></div>
+  <div class="cursor-pointer" (click)="cancelRequest()">
+    <i class="bi bi-x-lg"></i>
+  </div>
+</div>
+<ng-template #conformanceToggle>
+  <div
+    class="cursor-pointer"
+    (click)="toggleTreeConformance()"
+    [ngbTooltip]="tooltip"
+    triggers="hover"
+    container="body"
+    style="display: flex; flex-direction: column"
+  >
+    <ng-template #tooltip>
+      <div *ngIf="isConformanceActive; else tooltipConfNotAvailable">
+        Conformance: {{ (conformanceValue * 100).toFixed(2) }}%
+        <hr class="tooltip-hr" />
+        click to remove variant to conformance projection on model
+      </div>
+
+      <ng-template #tooltipConfNotAvailable>
+        click to add variant to conformance projection on model
+      </ng-template>
+    </ng-template>
+    <i
+      class="bi fs-4"
+      [ngClass]="{
+        'bi-toggle2-on text-light': isConformanceActive,
+        'bi-toggle2-off text-muted': !isConformanceActive
+      }"
+    >
+    </i>
+  </div>
+</ng-template>

@@ -1,0 +1,35 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  position: absolute;
+}
+
+.nav-tabs {
+  padding-bottom: 5px;
+}
+
+.color-map {
+  padding: 10px;
+  display: flex;
+}
+
+.card {
+  background-color: transparent;
+  border: 0;
+}
+
+.card-body{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-deck {
+  display: flex;
+  flex-direction: row;
+}
+
+.card-description {
+  padding-bottom: 20px;
+}

@@ -1,0 +1,227 @@
+<div class="pattern-editor">
+  <ng-content #patternTitle></ng-content>
+  <div #ToolBar class="bg-dark btn-tool-bar">
+    <span class="vl mx-2"></span>
+
+    <div class="btn-group round-corners" role="group">
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.infront"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.infront
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new activities infront the selected activtiy"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-arrow-bar-left"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.behind"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.behind
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new activities behind of the selected activtiy"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-arrow-bar-right"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.parallel"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.parallel
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new activities parallel of the selected activtiy"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-arrows-expand"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.choice"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.choice
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="add an activity as an alternative candidate to the currently selected activity"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-slash"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.fallthrough"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.fallthrough
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="create fallthrough using an activity"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-arrow-down"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="selectedStrategy = insertionStrategy.replace"
+        [ngClass]="
+          selectedStrategy === insertionStrategy.replace
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="replace the currently selected activity"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+      </button>
+    </div>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="undo()"
+      [disabled]="!(cachedVariants.length - 1 > 0 && cacheIdx !== 0)"
+      ngbTooltip="undo"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+      <span
+        class="text-secondary"
+        *ngIf="cachedVariants.length - 1 > 0 && cacheIdx !== 0"
+      >
+        ({{ cacheIdx }})
+      </span>
+    </button>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="redo()"
+      [disabled]="!(cacheIdx < cachedVariants.length - 1)"
+      ngbTooltip="redo"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-arrow-clockwise btn-icon"></i>
+      <span class="text-secondary" *ngIf="cacheIdx < cachedVariants.length - 1">
+        ({{ cachedVariants.length - 1 - cacheIdx }})
+      </span>
+    </button>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button"
+      (click)="removeSelection()"
+      [disabled]="!selectedElement"
+      ngbTooltip="remove current selection"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-dash-square-dotted"></i>
+    </button>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button"
+      (click)="onDeleteSelected()"
+      ngbTooltip="remove the currently selected activity"
+      triggers="hover"
+      container="body"
+      [disabled]="emptyVariant || !selectedElement"
+    >
+      <i
+        class="bi bi-trash"
+        [ngClass]="{
+          'text-warning': !emptyVariant
+        }"
+      ></i>
+
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        remove selected chevron(s)
+      </div>
+    </button>
+
+    <span class="vl mx-2"></span>
+
+    <button
+      class="button"
+      (click)="onDeleteVariant()"
+      ngbTooltip="remove the current variant"
+      triggers="hover"
+      container="body"
+      [disabled]="emptyVariant"
+    >
+      <i
+        class="bi bi-x-octagon"
+        [ngClass]="{
+          'text-danger': !emptyVariant
+        }"
+      ></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        remove current variant
+      </div>
+    </button>
+  </div>
+
+  <app-activity-button-area
+    [activityNames]="activityNames"
+    [referenceVariant]="referenceVariant"
+    [ifSource]="ifSource"
+    [redrawSingal]="false"
+    (activityButtonClick)="handleActivityButtonClick($event)"
+    [ngClass]="
+      (ifSource && checkSingleParallel()) || checkActivityDisable()
+        ? 'button-area-disabled'
+        : ''
+    "
+  >
+  </app-activity-button-area>
+
+  <app-zoom-field
+    #ZoomField
+    [zoomScale]="[0.1, 3]"
+    [computeFocusOffsets]="computeFocusOffset"
+  >
+    <svg
+      #content
+      #VariantMainGroup
+      appVariantDrawer
+      id="PatternVariantMainGroup"
+      [variant]="{ variant: currentVariant }"
+      (selection)="handleRedraw($event)"
+      [computeActivityColor]="computeActivityColor"
+      [infixType]="curInfixType"
+      [keepStandardView]="true"
+      class="zoom-group-variant pattern-variant"
+    ></svg>
+  </app-zoom-field>
+  <div class="invalid-feedback">Please provide a valid input.</div>
+</div>

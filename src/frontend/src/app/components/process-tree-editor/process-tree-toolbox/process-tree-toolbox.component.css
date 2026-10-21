@@ -1,0 +1,45 @@
+.node-btn {
+  height: 33px;
+  min-width: 33px;
+  max-width: 150px;
+  margin: 5px 3px;
+  border: 2px solid grey;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.node-btn:hover {
+  border: 2px solid #515a64;
+}
+
+.node-btn:focus {
+  border: 2px solid darkgray;
+}
+
+.vr {
+  border-color: var(--line-color);
+}
+
+.toolbox-area {
+  border-top: 1px solid;
+  border-color: var(--thin-border-color);
+}
+
+.activity-buttons {
+  max-height: 172px;
+  overflow-y: auto;
+}
+
+#collapse-button {
+  height: fit-content;
+  width: fit-content;
+  text-align: center;
+  position: absolute;
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
+  border-radius: 0 0 5px 5px;
+}
+
+button:disabled {
+  opacity: 0.5;
+}

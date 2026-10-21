@@ -1,0 +1,94 @@
+<div class="btn-group align-baseline dropDownParent dropdown ms-auto">
+  <button
+    class="button dropdown-toggle"
+    type="button"
+    id="sortDropdown"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    <i class="bi bi-sort-alpha-down btn-icon"></i>
+  </button>
+  <div
+    class="dropdown-menu custom-dropdown"
+    id="sortDropdownMenu"
+    aria-labelledby="sortDropdown"
+  >
+    <div class="fst-italic fw-bold ps-2 text-center">Sort</div>
+    <div class="fst-italic ps-2 text-primary dropdown-label">Order</div>
+    <div
+      class="dropdown-item"
+      (click)="onSortOrderChanged(true)"
+      [ngClass]="isAscendingOrder ? 'selected-dropdown-item' : ''"
+    >
+      <i class="bi bi-sort-down-alt btn-icon"></i>
+      <span class="ms-3">ascending</span>
+    </div>
+    <div
+      class="dropdown-item"
+      (click)="onSortOrderChanged(false)"
+      [ngClass]="!isAscendingOrder ? 'selected-dropdown-item' : ''"
+    >
+      <i class="bi bi-sort-down btn-icon"></i>
+      <span class="ms-3">descending</span>
+    </div>
+    <div class="fst-italic ps-2 text-primary dropdown-label">Feature</div>
+    <div
+      class="dropdown-item"
+      (click)="sort('number_of_activities')"
+      [ngClass]="
+        sortingFeature === 'number_of_activities'
+          ? 'selected-dropdown-item'
+          : ''
+      "
+    >
+      <i class="bi bi-chevron-double-right btn-icon"></i>
+      <span class="ms-3">activities</span>
+    </div>
+    <div
+      class="dropdown-item"
+      (click)="sort('conformance')"
+      [ngClass]="
+        sortingFeature === 'conformance' ? 'selected-dropdown-item' : ''
+      "
+    >
+      <i class="bi bi-check-square btn-icon"></i>
+      <span class="ms-3">conformance</span>
+    </div>
+    <div
+      class="dropdown-item"
+      (click)="sort('count')"
+      [ngClass]="sortingFeature === 'count' ? 'selected-dropdown-item' : ''"
+    >
+      <i class="bi bi-123 btn-icon"></i>
+      <span class="ms-3">frequency</span>
+    </div>
+    <div
+      class="dropdown-item"
+      (click)="sort('length')"
+      [ngClass]="sortingFeature === 'length' ? 'selected-dropdown-item' : ''"
+    >
+      <i class="bi bi-three-dots btn-icon"></i>
+      <span class="ms-3">length</span>
+    </div>
+    <div
+      class="dropdown-item"
+      (click)="sort('sub_variants')"
+      [ngClass]="
+        sortingFeature === 'sub_variants' ? 'selected-dropdown-item' : ''
+      "
+    >
+      <i class="bi bi-bar-chart-steps"></i>
+      <span class="ms-3">sub-variants</span>
+    </div>
+    <div
+      class="dropdown-item"
+      (click)="sort('userDefined')"
+      [ngClass]="
+        sortingFeature === 'userDefined' ? 'selected-dropdown-item' : ''
+      "
+    >
+      <i class="bi bi-person-circle"></i>
+      <span class="ms-3">user created</span>
+    </div>
+  </div>
+</div>

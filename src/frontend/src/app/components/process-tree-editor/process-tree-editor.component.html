@@ -1,0 +1,387 @@
+<div class="main-process-tree-editor h-100 d-flex flex-column">
+  <div class="bg-dark btn-tool-bar">
+    <div class="btn-group round-corners" role="group">
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.above"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.ABOVE"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.ABOVE
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node above the selected one"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-chevron-up"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.below"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.BELOW"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.BELOW
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node below the selected one"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-chevron-down"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.leftRight"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.LEFT"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.LEFT
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node left to the selected one"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        [disabled]="disabledInsertPositions.leftRight"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.RIGHT"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.RIGHT
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="insert new node right to the selected one"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-chevron-right"></i>
+      </button>
+
+      <button
+        type="button"
+        class="button"
+        (click)="nodeInsertionStrategy = NodeInsertionStrategy.CHANGE"
+        [ngClass]="
+          nodeInsertionStrategy === NodeInsertionStrategy.CHANGE
+            ? 'strategy-selected'
+            : ''
+        "
+        ngbTooltip="replace the currently selected node"
+        triggers="hover"
+        container="body"
+      >
+        <i class="bi bi-arrow-repeat"></i>
+      </button>
+    </div>
+
+    <div class="vr"></div>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="undo()"
+      [disabled]="!(treeCacheLength - 1 > 0 && treeCacheIndex !== 0)"
+      ngbTooltip="undo"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-arrow-counterclockwise btn-icon"></i>
+      <span
+        class="text-secondary"
+        *ngIf="treeCacheLength - 1 > 0 && treeCacheIndex !== 0"
+      >
+        ({{ treeCacheIndex }})
+      </span>
+    </button>
+
+    <button
+      class="button btn-fixed-width"
+      (click)="redo()"
+      [disabled]="!(treeCacheIndex < treeCacheLength - 1)"
+      ngbTooltip="redo"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-arrow-clockwise btn-icon"></i>
+      <span class="text-secondary" *ngIf="treeCacheIndex < treeCacheLength - 1">
+        ({{ treeCacheLength - 1 - treeCacheIndex }})
+      </span>
+    </button>
+
+    <div class="vr"></div>
+
+    <button
+      class="button"
+      (click)="shiftSubtreeUp()"
+      [disabled]="shiftSubtreeUpDisabled"
+      ngbTooltip="shift selected node(s) up"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-chevron-double-up btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="shiftSubtreeToLeft()"
+      [disabled]="shiftSubtreeLeftDisabled"
+      ngbTooltip="shift selected node(s) to left"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-chevron-double-left btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="shiftSubtreeToRight()"
+      [disabled]="shiftSubtreeRightDisabled"
+      ngbTooltip="shift selected node(s) to right"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-chevron-double-right btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="applyReductionRules()"
+      [disabled]="!currentlyDisplayedTreeInEditor"
+      ngbTooltip="Applies reduction rules to remove redundant and unnecessary nodes"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-diagram-2"></i>
+    </button>
+
+    <div
+      class="dropdown"
+      ngbTooltip="Quick Actions"
+      triggers="hover"
+      container="body"
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="quickActionDropdown"
+        [disabled]="allQuickActionsDisabled"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-magic btn-icon"></i>
+      </button>
+      <div
+        class="dropdown-menu custom-dropdown"
+        aria-labelledby="quickActionDropdown"
+        id="quickActionDropdownMenu"
+      >
+        <div
+          class="dropdown-item"
+          (click)="onMakeOptional()"
+          [ngClass]="makeOptionalDisabled ? 'disabled' : ''"
+        >
+          <i class="bi bi-alt"></i>
+          <span class="ms-3">Make subtree optional</span>
+        </div>
+        <div
+          class="dropdown-item"
+          (click)="onMakeRepeatable()"
+          [ngClass]="makeRepeatableDisabled ? 'disabled' : ''"
+        >
+          <i class="bi bi-repeat"></i>
+          <span class="ms-3">Make subtree repeatable</span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="vr"></div>
+
+    <button
+      class="button"
+      (click)="copySubtree()"
+      [disabled]="copyDisabled"
+      ngbTooltip="copy selected subtree"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-copy btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="cutSubtree()"
+      [disabled]="copyDisabled"
+      ngbTooltip="cut selected subtree"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-scissors btn-icon"></i>
+    </button>
+
+    <button
+      class="button"
+      (click)="pasteSubtree()"
+      [disabled]="pasteDisabled"
+      ngbTooltip="paste subtree below selected node"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-clipboard2-fill btn-icon"></i>
+    </button>
+
+    <button
+      class="button text-warning"
+      (click)="deleteSubtree()"
+      [disabled]="!selectedRootNode"
+      ngbTooltip="remove selected node(s)"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-trash btn-icon"></i>
+    </button>
+
+    <div class="vr"></div>
+
+    <button
+      class="button"
+      (click)="clearSelection()"
+      [disabled]="!selectedRootNode"
+      ngbTooltip="clear selection"
+      triggers="hover"
+      container="body"
+    >
+      <i
+        class="bi bi-x-circle btn-icon"
+        [ngClass]="selectedRootNode ? 'text-danger' : ''"
+      ></i>
+      <div class="button-text px-1" @collapseText *ngIf="!collapse">
+        clear selection
+      </div>
+    </button>
+
+    <div class="vr"></div>
+
+    <ng-template #unfreezeTooltip>
+      (un)freeze <em>entire</em> subtree to prevent them from being changed when
+      adding variants
+    </ng-template>
+    <button
+      class="button"
+      (click)="freezeSubtree()"
+      [disabled]="buttonFreezeSubtreeDisabled()"
+      [ngbTooltip]="unfreezeTooltip"
+      triggers="hover"
+      container="body"
+    >
+      <i
+        class="bi bi-snow btn-icon"
+        [ngClass]="!buttonFreezeSubtreeDisabled() ? 'text-primary' : ''"
+      ></i>
+      <div class="button-text px-1" @collapseText *ngIf="!collapse">
+        (un)freeze subtrees
+      </div>
+    </button>
+
+    <div class="vr"></div>
+
+    <button
+      class="button ms-auto"
+      ngbTooltip="Toggle BPMN editor in Splitview"
+      triggers="hover"
+      container="body"
+      (click)="toggleBPMNEditor()"
+    >
+      <i class="bi bi-window-split"></i>
+    </button>
+
+    <button
+      id="btn-reset-zoom"
+      class="button"
+      ngbTooltip="reset view"
+      triggers="hover"
+      container="body"
+    >
+      <i class="bi bi-arrows-fullscreen btn-icon text-light"></i>
+    </button>
+
+    <button
+      class="button"
+      ngbTooltip="export the tree as an .svg"
+      triggers="hover"
+      container="body"
+      (click)="exportCurrentTree(d3svg)"
+    >
+      <i class="bi bi-save"></i>
+    </button>
+  </div>
+  <app-process-tree-toolbox
+    (operatorInsertion)="insertNewNode($event, null)"
+    [operatorInsertionDisabled]="disabledOperatorInsertion"
+    (activityInsertion)="insertNewNode(null, $event)"
+    [activityInsertionDisabled]="disabledActivityInsertion"
+  ></app-process-tree-toolbox>
+
+  <div #d3container id="d3-container" class="m-1 flex-grow-1 crosshair grid">
+    <div class="floating-infobox" *ngIf="processTreeSyntaxInfo">
+      <div class="text-success" *ngIf="processTreeSyntaxInfo.correctSyntax">
+        syntax correct
+      </div>
+      <div class="text-danger" *ngIf="!processTreeSyntaxInfo.correctSyntax">
+        <b>
+          <i class="bi bi-exclamation-triangle"></i>
+          syntax incorrect
+        </b>
+      </div>
+
+      <div class="text-danger" *ngIf="processTreeSyntaxInfo.errors.length > 0">
+        syntax errors:
+        <ul>
+          <li *ngFor="let err of processTreeSyntaxInfo.errors">{{ err }}</li>
+        </ul>
+      </div>
+
+      <div
+        class="text-warning"
+        *ngIf="processTreeSyntaxInfo.warnings.length > 0"
+      >
+        syntax warnings:
+        <ul>
+          <li *ngFor="let war of processTreeSyntaxInfo.warnings">{{ war }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <app-expert-mode> </app-expert-mode>
+    <app-process-tree-editor-context-menu
+      #contextMenuComponent
+    ></app-process-tree-editor-context-menu>
+    <svg #d3svg id="d3-svg" width="100%" height="100%">
+      <g id="zoomGroup">
+        <g
+          #d3svgDirective
+          appProcessTreeDrawer
+          [contextMenuComponent]="contextMenuComponent"
+          [onClickCallBack]="selectNodeCallBack"
+          [computeNodeColor]="computeNodeColor"
+          [computeTextColor]="computeTextColor"
+          [tooltipText]="tooltipContent"
+          id="d3-svg-directive"
+          width="100%"
+          height="100%"
+        ></g>
+      </g>
+    </svg>
+  </div>
+</div>

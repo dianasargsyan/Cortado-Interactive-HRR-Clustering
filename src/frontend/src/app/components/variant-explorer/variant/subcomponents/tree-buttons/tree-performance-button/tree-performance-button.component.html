@@ -1,0 +1,54 @@
+<div
+  *ngIf="isPerformanceCalcInProgress; else performanceToggle"
+  class="d-flex flex-column align-items-center"
+>
+  <div
+    class="spinner-border spinner-border-sm text-primary"
+    role="status"
+  ></div>
+  <div class="cursor-pointer" (click)="cancelRequest()">
+    <i class="bi bi-x-lg"></i>
+  </div>
+</div>
+<ng-template #performanceToggle>
+  <div
+    class="cursor-pointer"
+    (click)="toggleTreePerformance()"
+    [ngbTooltip]="tooltip"
+    triggers="hover"
+    container="body"
+    style="display: flex; flex-direction: column"
+  >
+    <ng-template #tooltip>
+      <div *ngIf="isPerformanceActive; else tooltipPerfNotAvailable">
+        {{ tooltipText }}
+        <hr class="tooltip-hr" />
+        click to remove variant to performance projection on model
+        <div *ngIf="!isPerformanceFitting">
+          <hr class="tooltip-hr" />
+          <i class="bi bi-exclamation-triangle-fill text-warning">
+            Unfitting traces: possibly unreliable model performance values!
+          </i>
+          <br />
+          Fitness: {{ variantFitness }}
+        </div>
+      </div>
+
+      <ng-template #tooltipPerfNotAvailable>
+        click to add variant to performance projection on model
+      </ng-template>
+    </ng-template>
+    <i
+      class="bi fs-4"
+      [ngClass]="{
+        'bi-toggle2-on text-light': isPerformanceActive,
+        'bi-toggle2-off text-muted': !isPerformanceActive
+      }"
+    ></i>
+    <i
+      *ngIf="!isPerformanceFitting && isPerformanceActive"
+      class="bi bi-exclamation-triangle-fill"
+      style="margin-top: -10px"
+    ></i>
+  </div>
+</ng-template>

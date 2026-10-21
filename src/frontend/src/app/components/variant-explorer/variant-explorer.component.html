@@ -1,0 +1,1085 @@
+<app-performance-progress-bar> </app-performance-progress-bar>
+
+<app-variant-explorer-sidebar
+  [sidebarHeight]="sidebarHeight"
+></app-variant-explorer-sidebar>
+
+<div
+  class="d-flex flex-column h-100 container-variant-explorer"
+  #variantExplorerContainer
+  [class.blur-out-of-focus]="
+    variantPerformanceService.performanceUpdateIsInProgress
+  "
+>
+  <div class="bg-dark btn-tool-bar">
+    <ng-template #tooltip1>
+      Selected (marked with <i class="bi bi-check2-circle"></i>)
+      <b>non-fitting</b> variants will be added to the process model
+      <hr />
+      Selected (marked with <i class="bi bi-check2-circle"></i>)
+      <b>fitting</b> variants will remain in the process tree's language when
+      incrementally adding new variants
+    </ng-template>
+    <i
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
+      [ngbTooltip]="tooltip1"
+      triggers="hover"
+      container="body"
+      (click)="openDocumentation('Variant Explorer')"
+    >
+    </i>
+
+    <div class="vr ms-1"></div>
+
+    <ng-template #toolTip2>
+      calculate conformance checking statistics
+      <br /><i class="bi bi-question-square text-secondary"> unknown</i>
+      <br /><i class="bi bi-hourglass-split text-secondary">
+        being calculated</i
+      >
+      <br /><i class="bi bi-check-square text-success"> variant fits model</i>
+      <br /><i class="bi bi-x-square text-danger">
+        variant does not fit model</i
+      >
+      <br /><i class="bi bi-check-square text-warning"></i>
+      <i class="bi bi-x-square text-warning">
+        outdated results (model has changed)</i
+      >
+      <br /><i class="bi bi-hourglass-bottom text-warning"> timeout</i>
+    </ng-template>
+    <button
+      [ngbTooltip]="toolTip2"
+      triggers="hover"
+      container="body"
+      class="button"
+      (click)="updateAlignments()"
+      [disabled]="
+        !currentlyDisplayedProcessTree?.isValid() ||
+        isAlignmentCalculationInProgress() ||
+        !correctTreeSyntax
+      "
+    >
+      <i class="bi bi-layers-fill btn-icon"></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        conformance check
+      </div>
+    </button>
+
+    <div class="vr"></div>
+
+    <button
+      class="button"
+      ngbTooltip="add selected, non-fitting variant(s) to current process model"
+      triggers="hover"
+      container="body"
+      [disabled]="
+        isNoVariantSelected() ||
+        !currentlyDisplayedProcessTree?.isValid() ||
+        isAlignmentCalculationInProgress()
+      "
+      (click)="addSelectedVariantsToModel()"
+    >
+      <i
+        class="bi bi-plus-lg btn-icon"
+        [ngClass]="{
+          'text-success': !(
+            isNoVariantSelected() ||
+            !currentlyDisplayedProcessTree?.isValid() ||
+            isAlignmentCalculationInProgress()
+          )
+        }"
+      ></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        add variant(s) to model
+      </div>
+    </button>
+
+    <div class="vr"></div>
+
+    <ng-template #tooltip3>
+      discover an initial model from the selected variants using the standard
+      <em>Inductive Miner</em> algorithm<br /><b
+        ><i class="bi bi-exclamation-triangle text-warning"></i> overwrites the
+        existing model</b
+      >
+    </ng-template>
+    <button
+      class="button"
+      [ngbTooltip]="tooltip3"
+      triggers="hover"
+      container="body"
+      [disabled]="
+        isNoVariantSelected() ||
+        isAlignmentCalculationInProgress() ||
+        isInfixSelected()
+      "
+      (click)="discoverInitialModel()"
+    >
+      <i
+        class="bi bi-diagram-2-fill btn-icon"
+        [ngClass]="{
+          'text-success':
+            isAnyVariantSelected() &&
+            !isAlignmentCalculationInProgress() &&
+            !isInfixSelected()
+        }"
+      ></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">
+        discover initial model
+      </div>
+      <ng-template #infixSelectedTooltip>
+        Initial model discovery is not supported for infixes! <br />
+        First deselect all infixes.
+      </ng-template>
+      <i
+        class="bi bi-exclamation-triangle text-warning"
+        *ngIf="isInfixSelected()"
+        [ngbTooltip]="infixSelectedTooltip"
+        triggers="hover"
+        container="body"
+      ></i>
+    </button>
+
+    <div class="vr"></div>
+
+    <div class="vr"></div>
+    <ng-template #tooltip4>
+      sort variants by one of the following attributes:
+      <br /><i class="bi bi-chevron-double-right">
+        total number of activities</i
+      >
+      <br /><i class="bi bi-check-square"> conformace</i> <br /><i
+        class="bi bi-123"
+      >
+        frequency</i
+      >
+      <br /><i class="bi bi-three-dots"> maximal trace length</i> <br /><i
+        class="bi bi-person-circle"
+      >
+        user created</i
+      >
+    </ng-template>
+    <div
+      class="btn-group align-baseline dropDownParent dropdown ms-auto"
+      [ngbTooltip]="tooltip4"
+      triggers="hover"
+      container="body"
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="sortDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-sort-alpha-down btn-icon"></i>
+      </button>
+      <div
+        class="dropdown-menu custom-dropdown general-dropdown"
+        id="sortDropdownMenu"
+        aria-labelledby="sortDropdown"
+      >
+        <div class="fst-italic fw-bold ps-2 text-center">Sort</div>
+        <div class="fst-italic ps-2 text-dropdown">Order</div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="onSortOrderChanged(true)"
+            [ngClass]="isAscendingOrder ? 'selected-dropdown-item' : ''"
+          >
+            <i class="bi bi-sort-down-alt btn-icon"></i>
+            <span class="ms-3">ascending</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="onSortOrderChanged(false)"
+            [ngClass]="!isAscendingOrder ? 'selected-dropdown-item' : ''"
+          >
+            <i class="bi bi-sort-down btn-icon"></i>
+            <span class="ms-3">descending</span>
+          </button>
+        </div>
+        <div class="fst-italic ps-2 text-dropdown">Feature</div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('number_of_activities')"
+            [ngClass]="
+              sortingFeature === 'number_of_activities'
+                ? 'selected-dropdown-item'
+                : ''
+            "
+          >
+            <i class="bi bi-chevron-double-right btn-icon"></i>
+            <span class="ms-3">activities</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('conformance')"
+            [ngClass]="
+              sortingFeature === 'conformance' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-check-square btn-icon"></i>
+            <span class="ms-3">conformance</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('count')"
+            [ngClass]="
+              sortingFeature === 'count' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-123 btn-icon"></i>
+            <span class="ms-3">frequency</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('length')"
+            [ngClass]="
+              sortingFeature === 'length' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-three-dots btn-icon"></i>
+            <span class="ms-3">length</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('sub_variants')"
+            [ngClass]="
+              sortingFeature === 'sub_variants' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-bar-chart-steps"></i>
+            <span class="ms-3">sub-variants</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="sort('userDefined')"
+            [ngClass]="
+              sortingFeature === 'userDefined' ? 'selected-dropdown-item' : ''
+            "
+          >
+            <i class="bi bi-person-circle"></i>
+            <span class="ms-3">user created</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="vr"></div>
+
+    <div
+      class="dropdown"
+      ngbTooltip="Select the time granularity"
+      triggers="hover"
+      container="body"
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="granularityDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-clock btn-icon"></i>
+      </button>
+      <ul
+        class="dropdown-menu custom-dropdown general-dropdown"
+        aria-labelledby="granularityDropdown"
+      >
+        <li *ngFor="let unit of $any(timeUnit) | keyvalue : originalOrder">
+          <button
+            (click)="onGranularityChange(unit.value)"
+            [ngClass]="{
+              'selected-dropdown-item': selectedGranularity === unit.value
+            }"
+            class="dropdown-item"
+          >
+            {{ unit.value }}
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="vr"></div>
+
+    <div
+      class="dropdown"
+      ngbTooltip="Functions"
+      triggers="hover"
+      container="body"
+    >
+      <button
+        class="button dropdown-toggle"
+        type="button"
+        id="FuntionDropdown"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="bi bi-list btn-icon"></i>
+      </button>
+      <div
+        class="dropdown-menu custom-dropdown general-dropdown"
+        id="sortDropdownMenu"
+        aria-labelledby="sortDropdown"
+      >
+        <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+          <div>
+            <button
+              *ngIf="variantService.areVariantLoopsCollapsed"
+              class="dropdown-item"
+              style="color: green"
+              (click)="variantService.expandCollapseLoopsInVariants()"
+            >
+              <i
+                class="bi bi-arrow-repeat btn-icon cursor-pointer text-success"
+              ></i>
+              <span class="ms-3">Expand loops in variants</span>
+            </button>
+          </div>
+          <div>
+            <button
+              *ngIf="!variantService.areVariantLoopsCollapsed"
+              class="dropdown-item"
+              (click)="variantService.expandCollapseLoopsInVariants()"
+            >
+              <i class="bi bi-arrow-repeat btn-icon cursor-pointer"></i>
+              <span class="ms-3">Collapse loops in variants</span>
+            </button>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="variantViewModeService.viewMode !== VM.PERFORMANCE"
+        >
+          <div>
+            <button
+              *ngIf="areAllVariantsExpanded()"
+              class="dropdown-item"
+              (click)="expandCollapseAll()"
+            >
+              <i
+                class="bi bi-arrows-collapse btn-icon cursor-pointer rotate-90"
+              ></i>
+              <span class="ms-3">Collapse all variants</span>
+            </button>
+          </div>
+          <div>
+            <button
+              *ngIf="!areAllVariantsExpanded()"
+              class="dropdown-item"
+              (click)="expandCollapseAll()"
+            >
+              <i
+                class="bi bi-arrows-expand btn-icon cursor-pointer rotate-90"
+              ></i>
+              <span class="ms-3">Expand all variants</span>
+            </button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="variantViewModeService.viewMode === VM.STANDARD">
+          <div>
+            <button
+              class="dropdown-item"
+              (click)="showVariantSequentializerDialog()"
+            >
+              <i class="bi bi-bar-chart-steps btn-icon cursor-pointer"></i>
+              <span class="ms-3">Variant sequentializer</span>
+            </button>
+          </div>
+        </ng-container>
+        <div>
+          <button
+            *ngIf="
+              variantViewModeService.viewMode === VM.STANDARD &&
+              !traceInfixSelectionMode
+            "
+            class="dropdown-item"
+            (click)="toggleTraceInfixSelectionMode()"
+          >
+            <i class="bi bi-ui-checks-grid"></i>
+            <span class="ms-3">Trace fragment selection mode</span>
+          </button>
+        </div>
+        <div>
+          <button class="dropdown-item" (click)="toggleArcsVisibility()">
+            <i class="bi bi-rainbow"></i>
+            <span
+              class="ms-3"
+              *ngIf="
+                arcsViewMode === ArcsViewMode.SHOW_ALL ||
+                arcsViewMode === ArcsViewMode.SHOW_SOME
+              "
+              >Hide all arc diagrams</span
+            >
+            <span
+              class="ms-3"
+              *ngIf="
+                arcsViewMode === ArcsViewMode.INITIAL ||
+                arcsViewMode === ArcsViewMode.HIDE_ALL
+              "
+              >Show all arc diagrams</span
+            >
+          </button>
+        </div>
+        <div>
+          <button
+            *ngIf="
+              variantViewModeService.viewMode === VM.STANDARD &&
+              traceInfixSelectionMode
+            "
+            class="dropdown-item"
+            style="color: green"
+            (click)="toggleTraceInfixSelectionMode()"
+          >
+            <i class="bi bi-ui-checks-grid"></i>
+            <span class="ms-3">Exit trace fragment selection mode</span>
+          </button>
+        </div>
+        <div>
+          <button
+            class="dropdown-item"
+            (click)="openClusteringSettingsDialog()"
+          >
+            <i class="bi bi-grid-1x2"></i>
+            <span class="ms-3">Variant clustering</span>
+          </button>
+        </div>
+        <div>
+          <button class="dropdown-item" (click)="exportVariantSVG()">
+            <i class="bi bi-save"></i>
+            <span class="ms-3">Export the view as an .svg</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="vr"></div>
+
+    <button
+      class="button"
+      ngbTooltip="Mark 2 selected variants as must-link (force same cluster)"
+      triggers="hover"
+      container="body"
+      [disabled]="getSelectedVariants().length !== 2"
+      (click)="addMustLink()"
+    >
+      <i class="bi bi-link-45deg btn-icon text-success"></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">must-link</div>
+    </button>
+
+    <button
+      class="button"
+      ngbTooltip="Mark 2 selected variants as cannot-link (force different cluster)"
+      triggers="hover"
+      container="body"
+      [disabled]="getSelectedVariants().length !== 2"
+      (click)="addCannotLink()"
+    >
+      <i class="bi bi-scissors btn-icon text-danger"></i>
+      <div @collapseText class="button-text px-1" *ngIf="!collapse">cannot-link</div>
+    </button>
+
+    <div class="vr"></div>
+  </div>
+
+  <app-hrr-clustering-bar
+    *ngIf="hrrClusteringService.active"
+  ></app-hrr-clustering-bar>
+
+  <div
+    *ngIf="constraintService.mustLink.length > 0 || constraintService.cannotLink.length > 0"
+    class="d-flex flex-wrap align-items-center gap-1 px-2 py-1 bg-dark border-top border-secondary"
+    style="min-height: 32px;"
+  >
+    <small class="text-secondary me-1">Constraints:</small>
+
+    <span
+      *ngFor="let pair of constraintService.mustLink"
+      class="badge bg-success d-inline-flex align-items-center gap-1"
+    >
+      <i class="bi bi-link-45deg"></i>
+      #{{ pair[0] + 1 }} – #{{ pair[1] + 1 }}
+      <button
+        type="button"
+        class="btn-close btn-close-white ms-1"
+        style="font-size: 0.55em"
+        (click)="constraintService.removeMustLink(pair[0], pair[1])"
+      ></button>
+    </span>
+
+    <span
+      *ngFor="let pair of constraintService.cannotLink"
+      class="badge bg-danger d-inline-flex align-items-center gap-1"
+    >
+      <i class="bi bi-scissors"></i>
+      #{{ pair[0] + 1 }} – #{{ pair[1] + 1 }}
+      <button
+        type="button"
+        class="btn-close btn-close-white ms-1"
+        style="font-size: 0.55em"
+        (click)="constraintService.removeCannotLink(pair[0], pair[1])"
+      ></button>
+    </span>
+
+    <button
+      class="btn btn-sm btn-outline-info ms-auto me-1"
+      (click)="openConstraintOverview()"
+    >
+      <i class="bi bi-diagram-3 me-1"></i>Overview
+    </button>
+    <button
+      class="btn btn-sm btn-outline-secondary"
+      (click)="constraintService.clearAll()"
+    >
+      Clear all
+    </button>
+  </div>
+
+  <div class="d-flex flex-row">
+    <div
+      class="variant-query-button flex-row px-2"
+      role="button"
+      (click)="showFilterMenu = !showFilterMenu"
+    >
+      <i class="bi bi-funnel"></i>
+      <span class="ms-2 user-select-none">Filter</span>
+    </div>
+    <div
+      [class.d-none]="
+        variantService.areVariantLoopsCollapsed || !showFilterMenu
+      "
+      class="variant-query-button accordion d-flex flex-column"
+      id="accordion"
+    >
+      <div
+        class="flex-row px-2"
+        role="button"
+        (click)="showFilterMenu = !showFilterMenu"
+      >
+        <i class="bi-arrows-angle-contract"></i>
+        <span class="ms-2 user-select-none">Filter</span>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header d-flex flex-row" id="headingVariantQuery">
+          <div
+            class="query-button accordion-button me-auto py-2 collapsed"
+            role="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#variantQueryPanel"
+            aria-expanded="false"
+            aria-controls="variantQueryPanel"
+          >
+            <span class="ms-2 user-select-none secondary-text"
+              >Variant Query</span
+            >
+            <div class="ms-2">
+              <button
+                type="button"
+                class="query-info-button"
+                title="Variant Query Language"
+                (click)="toggleQueryInfo($event)"
+              >
+                <i
+                  class="bi bi-question-circle-fill font-large secondary-text fs-6 cursor-help question-icon"
+                >
+                </i>
+              </button>
+            </div>
+            <div class="me-2 dropdown">
+              <button
+                class="query-info-button"
+                type="button"
+                id="Options"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i
+                  class="bi bi-gear font-large secondary-text fs-6 question-icon"
+                ></i>
+              </button>
+              <ul
+                class="dropdown-menu query-bar-drop query-bar-dropdown"
+                aria-labelledby="Files"
+              >
+                <li>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="flexSwitchCheckChecked"
+                      checked
+                      (change)="
+                        changeQueryOption($event, 'highlightActivityNames')
+                      "
+                    />
+                    <label class="form-check-label" for="flexSwitchCheckChecked"
+                      >Syntax Highlighting</label
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div
+          class="query-app-container accordion-collapse collapse"
+          id="variantQueryPanel"
+          aria-labelledby="headingVariantQuery"
+          data-bs-parent="#accordion"
+        >
+          <app-variant-query
+            [active]="true"
+            [options]="options"
+            (executeFilteredVariantsAction)="
+              executeRemovalActionOnFilteredVariants($event)
+            "
+          ></app-variant-query>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <div class="accordion-header" id="flush-headingOne">
+          <button
+            class="query-button accordion-button collapsed py-2"
+            data-bs-toggle="collapse"
+            data-bs-target="#flush-collapseOne"
+            aria-expanded="false"
+            aria-controls="flush-collapseOne"
+          >
+            <span class="ms-2 secondary-text">Arc Visualisation</span>
+          </button>
+        </div>
+        <div
+          id="flush-collapseOne"
+          class="accordion-collapse collapse"
+          aria-labelledby="flush-headingOne"
+          data-bs-parent="#accordionFlushExample"
+        >
+          <app-arc-diagram-filter-form
+            (filterArcDiagrams)="filterArcDiagrams($event)"
+            (newActivitiesLoaded)="newActivitiesLoaded($event)"
+            [arcsMaxValues]="arcsMaxValues"
+            [filtering]="filtering"
+          ></app-arc-diagram-filter-form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="main-variant-explorer flex-grow-1"
+    (scroll)="onScroll()"
+    #variantExplorer
+  >
+    <div *ngIf="svgRenderingInProgress" class="full-body-spinner">
+      <div
+        class="spinner-border spinner-border-sm text-primary"
+        role="status"
+      ></div>
+      <div class="ms-1" style="color: var(--text-primary)">
+        Exporting Variant View...
+      </div>
+    </div>
+    <div class="d-flex">
+      <div class="chart-variant-percentage">
+        <table>
+          <thead>
+            <tr class="user-select-none">
+              <th class="centered">
+                <div class="variant-filter-container">No.</div>
+              </th>
+              <th>
+                <div class="variant-filter-container">
+                  <app-variant-selection-button
+                    [isSelected]="areAllDisplayedVariantsSelected()"
+                    (selectionChanged)="unSelectAllChanged($event)"
+                    tooltipText="(un)select all variants"
+                  >
+                  </app-variant-selection-button>
+                  Info
+                </div>
+              </th>
+              <th class="centered">
+                <div class="variant-filter-container">Sub-Variants</div>
+              </th>
+              <th
+                *ngIf="
+                  currentlyDisplayedProcessTree?.isValid() &&
+                  variantViewModeService.viewMode !== VM.STANDARD
+                "
+                class="centered"
+              >
+                Model Projection
+                <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                  <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                    <i
+                      class="bi bi-x-circle-fill cursor-pointer fs-6"
+                      [ngStyle]="{
+                        display:
+                          conformanceCheckingService.anyTreeConformanceActive()
+                            ? 'inline'
+                            : 'none'
+                      }"
+                      ngbTooltip="hide all model projections"
+                      triggers="hover"
+                      container="body"
+                      (click)="handleTreeConformanceClear()"
+                    ></i>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="VM.PERFORMANCE">
+                    <i
+                      class="bi bi-x-circle-fill cursor-pointer fs-6"
+                      [ngStyle]="{
+                        display: performanceService.anyTreePerformanceActive()
+                          ? 'inline'
+                          : 'none'
+                      }"
+                      ngbTooltip="hide all model projections"
+                      triggers="hover"
+                      container="body"
+                      (click)="handleTreePerformanceClear()"
+                    ></i>
+                  </ng-container>
+                </ng-container>
+              </th>
+              <th
+                *ngIf="
+                  currentlyDisplayedProcessTree?.isValid() &&
+                  variantViewModeService.viewMode !== VM.STANDARD
+                "
+                class="centered"
+              >
+                <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                  <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                    Tree-Conformance
+                  </ng-container>
+                  <ng-container *ngSwitchCase="VM.PERFORMANCE">
+                    {{ performanceColumnHeader() }}
+                  </ng-container>
+                </ng-container>
+              </th>
+
+              <th class="text-start variant-header">
+                <div class="variant-filter-container">
+                  <div>
+                    <span>Variant </span>
+                    <span
+                      class="variant-number"
+                      [ngClass]="{
+                        'text-primary':
+                          displayed_variants.length !== variants.length &&
+                          !variantService.areVariantLoopsCollapsed
+                      }"
+                      >({{
+                        displayed_variants.length === variants.length ||
+                        variantService.areVariantLoopsCollapsed
+                          ? displayed_variants.length
+                          : displayed_variants.length + "/" + variants.length
+                      }})</span
+                    >
+                  </div>
+
+                  <div class="filter-container">
+                    <div
+                      *ngFor="let filter of filterMap | keyvalue"
+                      class="badge-container"
+                    >
+                      <button
+                        class="btn badge-button"
+                        (click)="removeFilter(filter.key)"
+                      >
+                        <span
+                          class="badge rounded-pill bg-danger badge-close-position cursor-pointer"
+                          ><i class="bi bi-x-lg close-icon"></i>
+                        </span>
+                      </button>
+                      <span
+                        class="badge text-bg-primary ms-1 cursor-pointer"
+                        [ngbTooltip]="filter.value.tooltip"
+                        container="body"
+                        triggers="hover"
+                        (click)="toggleQueryFilterDialog()"
+                      >
+                        <i class="bi bi-funnel-fill"> </i> {{ filter.key }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </th>
+              <th>
+                <!-- header for fixed-right (infix/deletion) buttons -->
+              </th>
+            </tr>
+          </thead>
+          <!-- start cluster view-->
+
+          <ng-container
+            *ngFor="
+              let cluster of displayed_variants
+                | groupBy : 'clusterId'
+                | keyvalue : compareClusterIds;
+              let i = index
+            "
+          >
+            <tr>
+              <td colspan="3">
+                <div
+                  *ngIf="cluster.value[0].clusterId !== -1"
+                  class="m-2 badge bg-secondary justify-content-center align-items-center cluster-badge"
+                >
+                  <div
+                    *ngIf="cluster.value[0].clusterId !== -1"
+                    style="gap: 4px"
+                    class="d-flex flex-row"
+                  >
+                    <button
+                      class="btn control-button"
+                      type="button"
+                      (click)="toggle(i)"
+                    >
+                      <i
+                        *ngIf="hideRuleContent[i]"
+                        class="bi bi-chevron-right btn-icon"
+                      ></i>
+                      <i
+                        *ngIf="!hideRuleContent[i]"
+                        class="bi bi-chevron-down btn-icon"
+                      ></i>
+                    </button>
+
+                    <span class="text-nowrap cluster-badge-text-primary">{{
+                      hrrClusteringService.active
+                        ? hrrHeaders.get(cluster.value[0].clusterId)?.label
+                        : 'Cluster ' + (i + 1)
+                    }}</span>
+                    <app-search
+                      class="cluster-app-search"
+                      (sortEvent)="handleClusterSort($event, cluster.key)"
+                      [isAscendingOrder]="
+                        clusterSortSettings[i]?.isAscendingOrder
+                      "
+                      [sortingFeature]="clusterSortSettings[i]?.feature"
+                    ></app-search>
+                  </div>
+
+                  <div
+                    *ngIf="cluster.value[0].clusterId !== -1"
+                    class="d-flex flex-row"
+                  >
+                    <span class="text-nowrap cluster-badge-text-secondary"
+                      >({{ cluster.value.length }} of
+                      {{ logStats?.totalNumberVariants }} variants |&nbsp;</span
+                    >
+                    <span class="text-nowrap cluster-badge-text-secondary"
+                      >{{
+                        calculateTotalTracesInCluster(cluster.value) | number
+                      }}
+                      of
+                      {{ logStats?.totalNumberTraces | number }} traces)</span
+                    >
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr
+              *ngIf="
+                hrrClusteringService.active &&
+                hrrHeaders.get(cluster.value[0].clusterId) as header
+              "
+            >
+              <td
+                [attr.colspan]="
+                  currentlyDisplayedProcessTree?.isValid() &&
+                  variantViewModeService.viewMode !== VM.STANDARD
+                    ? 7
+                    : 5
+                "
+              >
+                <div class="cluster-skeleton ps-3 pb-2">
+                  <svg
+                    *ngIf="header.typical"
+                    appVariantDrawer
+                    [variant]="header.typical"
+                    [computeActivityColor]="header.color"
+                    [infixType]="header.typical.infixType"
+                    [keepStandardView]="true"
+                    [addCursorPointer]="false"
+                    style="display: block"
+                  ></svg>
+                  <small class="d-block text-secondary">{{ header.why }}</small>
+                  <small *ngIf="header.changes" class="d-block text-secondary">{{
+                    header.changes
+                  }}</small>
+                </div>
+              </td>
+            </tr>
+
+            <ng-container
+              *ngFor="
+                let variant of cluster.value
+                  | variantSort
+                    : clusterSortSettings[cluster.key]?.isAscendingOrder
+                    : clusterSortSettings[cluster.key]?.feature;
+                let j = index
+              "
+            >
+              <ng-container *ngIf="!hideRuleContent[i]">
+                <tr
+                  app-variant
+                  [index]="j"
+                  [variant]="variant"
+                  [processTreeAvailable]="
+                    processTreeService.currentDisplayedProcessTree?.isValid()
+                  "
+                  [traceInfixSelectionMode]="traceInfixSelectionMode"
+                  [rootElement]="variantExplorerDiv"
+                  class="hover-variant-row"
+                >
+                  <ng-template #treeButton>
+                    <ng-container [ngSwitch]="variantViewModeService.viewMode">
+                      <ng-container *ngSwitchCase="VM.CONFORMANCE">
+                        <app-tree-conformance-button
+                          [variant]="variant"
+                        ></app-tree-conformance-button>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="VM.PERFORMANCE">
+                        <app-tree-performance-button
+                          [variant]="variant"
+                        ></app-tree-performance-button>
+                      </ng-container>
+                    </ng-container>
+                  </ng-template>
+
+                  <ng-template #variantInfo>
+                    <app-variant-info
+                      [variant]="variant"
+                      (selectionChanged)="
+                        selectionChangedForVariant(variant, $event)
+                      "
+                      (updateConformance)="
+                        updateConformanceForSingleVariantClicked($event)
+                      "
+                      (variantInfoEvent)="
+                        createVariantInfoView(i + 1, j + 1, variant.id)
+                      "
+                    >
+                    </app-variant-info>
+                    <i
+                      *ngIf="hasMustLink(variant.bid)"
+                      class="bi bi-link-45deg text-success ms-1"
+                      [ngbTooltip]="getMustLinkTooltip(variant.bid)"
+                      triggers="hover"
+                      container="body"
+                    ></i>
+                    <i
+                      *ngIf="hasCannotLink(variant.bid)"
+                      class="bi bi-scissors text-danger ms-1"
+                      [ngbTooltip]="getCannotLinkTooltip(variant.bid)"
+                      triggers="hover"
+                      container="body"
+                    ></i>
+                  </ng-template>
+
+                  <ng-template #subvariantButton>
+                    <div
+                      *ngIf="variant.nSubVariants > 0"
+                      class="subvariants"
+                      (click)="createSubVariantView(i + 1, j + 1, variant.id)"
+                    >
+                      {{ variant.nSubVariants }}
+                    </div>
+                  </ng-template>
+
+                  <ng-template #variantDrawer>
+                    <div class="d-flex align-items-center">
+                      <app-variant-visualisation
+                        [variant]="variant"
+                        [traceInfixSelectionMode]="traceInfixSelectionMode"
+                        [colorMap]="colorMap"
+                        [arcsCache]="arcsCache"
+                        [arcsViewMode]="arcsViewMode"
+                        [filterParams]="filterParams"
+                        [class.moved-variant]="
+                          hrrClusteringService.movedFrom(variant.bid) !==
+                          undefined
+                        "
+                      ></app-variant-visualisation>
+                      <small
+                        *ngIf="
+                          hrrClusteringService.movedFrom(variant.bid) !==
+                          undefined
+                        "
+                        class="text-warning text-nowrap ms-2"
+                        >from Cluster
+                        {{ hrrClusteringService.movedFrom(variant.bid) + 1 }}</small
+                      >
+                    </div>
+                    <ng-template #infixSelection>
+                      <app-infix-selection-controlls
+                        [variant]="variant"
+                        (selectTraceInfix)="handleSelectInfix($event)"
+                        [variantDrawer]="drawer"
+                      ></app-infix-selection-controlls>
+                    </ng-template>
+                  </ng-template>
+                  <ng-template #removeVariantButton>
+                    <app-variant-action-buttons
+                      [variant]="variant"
+                      [variantVisualisations]="variantVisualisations"
+                      (showArcDiagram)="showSingleArcDiagram($event)"
+                    ></app-variant-action-buttons>
+                  </ng-template>
+                </tr>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-dark user-select-none">
+    <app-conformance-info-bar
+      [logStats]="logStats"
+      [isConformanceOutdated]="this.isConformanceOutdated()"
+      [numSelectedVariants]="this.getSelectedVariants().length"
+    ></app-conformance-info-bar>
+  </div>
+
+  <div role="tooltip" #tooltipContainer>
+    <div class="tooltip-inner"></div>
+  </div>
+</div>
+
+<app-variant-query-info [(showInfo)]="showQueryInfo"></app-variant-query-info>
+
+<app-variant-explorer-context-menu
+  [xPos]="contextMenu_xPos"
+  [yPos]="contextMenu_yPos"
+  [contextMenuOptions]="contextMenuOptions"
+></app-variant-explorer-context-menu>
+
+<svg display="none" id="infixDotsForDrawer">
+  <symbol
+    width="20"
+    height="20"
+    fill="currentColor"
+    id="infixDots"
+    transform-origin="10 10"
+  >
+    <path
+      d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+    />
+  </symbol>
+</svg>

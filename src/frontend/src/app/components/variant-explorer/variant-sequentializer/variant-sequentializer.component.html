@@ -1,0 +1,94 @@
+<div
+  class="modal fade show variant-sequentializer-modal"
+  id="variantSequentializerModalDialog"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="variantSequentializerModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content dialog">
+      <div class="modal-header h-line-modal-bottom">
+        <h5 class="modal-title text-light" id="variantSequentializerModalLabel">
+          Variant Sequentializer
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="consistency-warning" @fadeIn *ngIf="consistencyWarning">
+        The source pattern and target pattern are not consistent!
+      </div>
+      <div class="modal-body">
+        <app-pattern-editor
+          #SourceEditor
+          id="source-pattern"
+          [ifSource]="ifSource"
+          [referenceVariant]="targetPattern"
+          (variantChange)="handleSourceChange($event)"
+        >
+          <label #patternTitle class="text-light dialog-label">
+            Source Pattern
+          </label>
+        </app-pattern-editor>
+        <app-pattern-editor
+          #TargetEditor
+          id="target-pattern"
+          [ifSource]="!ifSource"
+          [referenceVariant]="sourcePattern"
+          (variantChange)="handleTargetChange($event)"
+        >
+          <label #patternTitle class="text-light dialog-label">
+            Target Pattern
+          </label>
+        </app-pattern-editor>
+        <div class="modal-footer h-line-modal-top">
+          <button
+            id="close-modal"
+            type="button"
+            class="button"
+            data-bs-dismiss="modal"
+          >
+            <i class="bi bi-x btn-icon text-danger"></i>
+            Close
+          </button>
+          <button type="button" class="button" (click)="apply()">
+            <i class="bi bi-save btn-icon text-success"></i>
+            Apply
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="warningModalDialog"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="warningModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-m" role="document">
+    <div class="modal-content dialog">
+      <div class="modal-header h-line-modal-bottom">
+        <h5 class="modal-title text-light" id="warningModalLabel">Warning</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center; color: white">
+          The source pattern and target pattern are not consistent!
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

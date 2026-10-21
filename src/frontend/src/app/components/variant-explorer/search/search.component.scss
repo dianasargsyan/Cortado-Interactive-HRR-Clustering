@@ -1,0 +1,25 @@
+.dropdown-sort {
+  font-size: small;
+  max-height: 90vh;
+  user-select: none;
+}
+
+.dropdown-menu {
+  border-radius: 0;
+  background-color: lightgray;
+}
+
+.selected-dropdown-item {
+  background-color: var(--bs-blue);
+  color: var(--bs-white);
+}
+
+.dropdown-label{
+  font-weight: initial;
+  margin: 8px 0 2px;
+}
+
+.dropdown-item{
+  padding-top: 8px;
+  padding-bottom: 8px;
+}

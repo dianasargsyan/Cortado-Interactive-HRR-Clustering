@@ -1,0 +1,19 @@
+.border-lightgrey{
+  border-color: rgb(106 106 106 / 60%) !important;
+}
+
+.center-element{
+  border-color: rgb(106 106 106 / 20%) !important;
+  border-right-width: 1px;
+  border-left-width: 1px;
+}
+
+.variant-spacer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.text-size{
+  font-size: 0.9rem;
+}

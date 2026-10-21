@@ -1,0 +1,246 @@
+#documentation-modal-dialog {
+  --bs-modal-width: calc(100vw - 80px);
+}
+
+.flex-container {
+  display: flex;
+}
+
+.modal-header {
+  top: 0;
+  position: sticky;
+  z-index: 1;
+}
+
+nav {
+  align-self: flex-start;
+  position: sticky;
+  top: 85px;
+  min-width: 220px;
+  border-left: 1px #a0a0a0 solid;
+  margin-left: 22px;
+}
+
+
+nav > ul {
+  list-style-type: none;
+  padding: 0 16px;
+}
+
+li {
+  margin-left: -4px;
+}
+
+li.active {
+  border-left: 5px solid rgb(84 103 239);
+}
+
+
+ul.scrollspy-nav {
+  padding: 0;
+
+  li {
+    border-radius: 2px;
+    font-size: 15px;
+    font-weight: 500;
+    list-style: none;
+    padding: 4px 0 4px 16px;
+    color: black !important;
+
+    > a {
+      color: black;
+    }
+
+    > a,
+    > a:active,
+    > a:focus,
+    > a:hover {
+      text-decoration: none;
+    }
+
+    &:not(.active) {
+      border-color: transparent;
+      opacity: 0.6;
+    }
+  }
+
+  .first {
+    color: var(--bs-modal-color);
+    padding-left: 12px;
+    font-weight: 700;
+  }
+
+  .first.active {
+    padding-left: 8px;
+  }
+
+  .second {
+    color: var(--bs-modal-color);
+    padding-left: 18px;
+    font-weight: 600;
+  }
+
+  .second.active {
+    padding-left: 14px;
+  }
+
+  .third {
+    color: var(--bs-modal-color);
+    padding-left: 24px;
+    font-weight: 400;
+  }
+
+  .third.active {
+    padding-left: 20px;
+  }
+
+  .fourth {
+    color: var(--bs-modal-color);
+    padding-left: 30px;
+    font-weight: 200;
+  }
+
+  .fourth.active {
+    padding-left: 26px;
+  }
+
+  .fifth {
+    color: var(--bs-modal-color);
+    padding-left: 36px;
+    font-weight: 100;
+  }
+
+  .fifth.active {
+    padding-left: 32px;
+  }
+
+  counter-reset: first
+
+}
+
+main > h3 {
+  margin: 38px 0 17px;
+  color: black;
+}
+
+main > h4 {
+  margin: 32px 0 14px;
+  color: black;
+  font-size: calc(1.2rem + 0.3vw);
+}
+
+main > h5 {
+  margin: 26px 0 11px;
+  color: black;
+  font-size: 1.1rem;
+}
+
+
+// White background theme:
+
+.modal-title-dark {
+  color: black !important;
+}
+
+.light-style {
+  background-color: #eee;
+  color: black;
+}
+
+.markdown-table {
+  border: 1px solid black;
+}
+
+.doc-modal-close-btn {
+  color: black !important;
+}
+
+
+main {
+  counter-reset: h1;
+  margin-top: -30px;
+}
+
+main > h1 {
+  counter-reset: h2;
+  margin: 50px 0 23px;
+  scroll-margin-top: 85px;
+  color: black;
+}
+
+main > h2 {
+  counter-reset: h3;
+  margin: 44px 0 20px;
+  scroll-margin-top: 85px;
+  color: black;
+}
+
+// main > h3 {
+//    counter-reset: h4
+// }
+
+// main > h4 {
+//    counter-reset: h5
+// }
+
+main > h1::before {
+  counter-increment: h1;
+  content: counter(h1) ". "
+}
+
+main > h2::before {
+  counter-increment: h2;
+  content: counter(h1) "." counter(h2) ". "
+}
+
+main > h3::before {
+  counter-increment: h3;
+  content: counter(h1) "." counter(h2) "." counter(h3) ". "
+}
+
+// main > h4:before {
+//    counter-increment: h4;
+//    content: counter(h1) "." counter(h2) "." counter(h3) "." counter(h4) ". "
+// }
+
+// main > h5:before {
+//    counter-increment: h5;
+//    content: counter(h1) "." counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "
+// }
+
+
+ul.scrollspy-nav > .first {
+  counter-reset: second
+}
+
+ul.scrollspy-nav > .first::before {
+  counter-increment: first;
+  content: counter(first) ". "
+}
+
+ul.scrollspy-nav > .second::before {
+  counter-increment: second;
+  content: counter(first) "." counter(second) ". "
+}
+
+img[alt="xxxsmall"] { width: calc(8vw); }
+img[alt="xxsmall"] { width: calc(13vw); }
+img[alt="xsmall"] { width: calc(20vw); }
+img[alt="small"] { width: calc(30vw); }
+img[alt="medium"] { width: calc(40vw); }
+img[alt="large"] { width: calc(50vw); }
+img[alt="xlarge"] { width: calc(60vw); }
+img[alt="xxlarge"] { width: calc(70vw); }
+
+.xxxsmall { width: calc(8vw); }
+.xxsmall { width: calc(13vw); }
+.xsmall { width: calc(20vw); }
+.small { width: calc(30vw); }
+.medium { width: calc(40vw); }
+.large { width: calc(50vw); }
+.xlarge { width: calc(60vw); }
+.xxlarge { width: calc(70vw); }
+
+.xxxsmall-img { width: calc(8vw); }
+.xxsmall-img { width: calc(13vw); }
+.xsmall-img { width: calc(18vw); }

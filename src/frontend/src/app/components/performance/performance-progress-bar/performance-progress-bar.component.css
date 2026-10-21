@@ -1,0 +1,15 @@
+.loader-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0 0 0 / 50%);
+  top: 0;
+  z-index: 1000;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.progress-color {
+  background-color: rgb(var(--bs-dark-rgb) / var(--bs-bg-opacity));
+}

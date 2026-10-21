@@ -1,0 +1,34 @@
+.drop-zone-container{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index : -1;
+}
+
+.pull-in-front{
+  z-index : 3;
+}
+
+.drop-zone-text{
+  z-index : -1;
+}
+
+.drop-zone{
+  width : 100%;
+  height: 100%;
+}
+
+.drop-zone-content{
+  height: 100%;
+  width : 100%;
+  align-items: center;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: center;
+}
+
+.blur-out-of-focus{
+  opacity: 0.8;
+  filter: blur(3px) brightness(0.5);
+}
+

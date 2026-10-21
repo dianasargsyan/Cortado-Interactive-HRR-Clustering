@@ -1,0 +1,162 @@
+<app-performance-progress-bar></app-performance-progress-bar>
+
+<app-variant-explorer-sidebar></app-variant-explorer-sidebar>
+
+<div class="d-flex flex-column mh-100 h-100 container-variant-explorer">
+  <div class="table-container flex-grow-1 table-responsive">
+    <table
+      class="table table-sm table-font table-hover table-striped table-borderless table-dark mb-0"
+      *ngIf="mainVariant"
+    >
+      <thead class="activity-overview-table-header">
+        <tr class="user-select-none">
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('act_id')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The event name"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Event</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-alpha-down-alt': !ascending,
+                  'bi-sort-alpha-down': ascending,
+                  invisible: sortKey !== 'act_id'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('start_timestamp')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The starting timestamp of the event"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Start timestamp</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down-alt': !ascending,
+                  'bi-sort-numeric-down': ascending,
+                  invisible: sortKey !== 'start_timestamp'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('end_timestamp')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The ending timestamp of the event"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">End timestamp</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down-alt': !ascending,
+                  'bi-sort-numeric-down': ascending,
+                  invisible: sortKey !== 'end_timestamp'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            resizeable
+            scope="col"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            (click)="toggleSort('duration')"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+              ngbTooltip="The duration the event lasted"
+              triggers="hover"
+            >
+              <div class="user-select-none mx-1">Duration</div>
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-sort-numeric-down-alt': !ascending,
+                  'bi-sort-numeric-down': ascending,
+                  invisible: sortKey !== 'duration'
+                }"
+              ></i>
+            </div>
+          </th>
+          <th
+            *ngFor="let key of activityPropertyKeys"
+            resizeable
+            scope="col"
+            (click)="toggleSort(key)"
+            class="bg-dark text-center toggle-select resizeable-header-element"
+            [margin]="-7"
+          >
+            <div
+              class="d-flex flex-row justify-content-center table-header-sort-group"
+            >
+              <div ngbTooltip="Other properties of the event" triggers="hover">
+                <div class="user-select-none mx-1">{{ key }}</div>
+                <i
+                  class="bi"
+                  [ngClass]="{
+                    'bi-sort-down': !ascending,
+                    'bi-sort-down-alt': ascending,
+                    invisible: sortKey !== key
+                  }"
+                ></i>
+              </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <ng-container *ngIf="caseActivities">
+          <tr
+            *ngFor="
+              let act of caseActivities | tableSorting : sortKey : ascending
+            "
+          >
+            <td class="text-center user-select-none">
+              {{ act.act_id }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ act.start_timestamp }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ act.end_timestamp }}
+            </td>
+            <td class="text-center user-select-none">
+              {{ act.duration }}
+            </td>
+            <td
+              *ngFor="let key of activityPropertyKeys"
+              class="text-center user-select-none"
+            >
+              {{ act.property.hasOwnProperty(key) ? act.property[key] : "-" }}
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="activity-button-area bg-dark">
+  <div class="activity-button-container" *ngFor="let activity of activityNames">
+    <!-- <app-variant-drag-source [colorMap]="colorMap" [activity]="activity"> </app-variant-drag-source> -->
+    <svg
+      #ActivityButton
+      appVariantDrawer
+      [variant]="{ variant: activityDummyVariants.get(activity) }"
+      [computeActivityColor]="computeActivityColor"
+      [onMouseOverCbFc]="onMouseOverCbFc"
+      [highlightOnMouseover]="true"
+      (click)="onActivityButtonClick(ActivityButton, activity)"
+      class="activity-button"
+      [ngClass]="
+        ifSource ||
+        activityExist(activityDummyVariants.get(activity), referenceVariant)
+          ? 'activity-button'
+          : 'button-disabled'
+      "
+    ></svg>
+  </div>
+</div>

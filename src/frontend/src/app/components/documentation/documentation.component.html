@@ -1,0 +1,73 @@
+<div
+  class="modal fade"
+  id="documentation-modal-dialog"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="doc-modal-header"
+  aria-hidden="true"
+  (scroll)="onScroll()"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content light-style">
+      <div class="modal-header h-line-modal-bottom light-style">
+        <h4
+          class="modal-title text-light modal-title-dark"
+          id="doc-modal-header"
+        >
+          Documentation
+        </h4>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="flex-container" style="padding-left: 15px">
+          <main
+            markdown
+            ngPreserveWhitespaces
+            [src]="'./assets/doc/user_manual.md'"
+            [srcRelativeLink]="true"
+            (load)="onLoad()"
+          ></main>
+          <nav *ngIf="headings">
+            <ul class="scrollspy-nav" id="table-of-contents">
+              <li
+                *ngFor="let heading of headings"
+                [ngClass]="{
+                  first: heading.nodeName === 'H1',
+                  second: heading.nodeName === 'H2',
+                  third: heading.nodeName === 'H3',
+                  fourth: heading.nodeName === 'H4',
+                  fifth: heading.nodeName === 'H5'
+                }"
+                (click)="navToSection(heading)"
+              >
+                <a
+                  style="cursor: pointer"
+                  fragment="{{ heading.id }}"
+                  [attr.href]="'#' + heading.id"
+                  >{{ heading.innerHTML | stripHtml }}</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div class="modal-footer h-line-modal-top">
+        <button
+          id="close-modal"
+          type="button"
+          class="button btn-light doc-modal-close-btn"
+          data-bs-dismiss="modal"
+        >
+          <i class="bi bi-x-lg btn-icon text-danger"></i>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

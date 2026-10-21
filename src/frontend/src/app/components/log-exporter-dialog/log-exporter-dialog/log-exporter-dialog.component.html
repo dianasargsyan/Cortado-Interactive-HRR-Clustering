@@ -1,0 +1,333 @@
+<div class="modal-header h-line-modal-bottom">
+  <h5 class="modal-title text-light">Event-Log Export</h5>
+
+  <span class="ml-3">
+    <i
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
+      container="body"
+      (click)="openDocumentation()"
+    ></i>
+  </span>
+
+  <button
+    type="button"
+    class="btn-close btn-close-white"
+    (click)="modal.dismiss('Cross click')"
+    aria-label="Close"
+  ></button>
+</div>
+
+<div class="modal-body d-flex">
+  <ul
+    ngbNav
+    #nav="ngbNav"
+    orientation="vertical"
+    [(activeId)]="activeIndex"
+    class="col-4 nav-tabs"
+  >
+    <li [ngbNavItem]="0">
+      <button ngbNavLink>Variants</button>
+      <ng-template ngbNavContent>
+        <div>
+          Select which variations are taken into account for export:
+          <br />
+          <ul>
+            <li>All: includes all variants</li>
+            <li>
+              Display: includes only visible variants in the Variant Explorer,
+              i.e. excluding those hidden by filters.
+            </li>
+            <li>
+              Fitting and Non-Fitting:
+              <ul>
+                <li>ignores variants without calculated conformance values</li>
+                <li>
+                  outdated conformance results are considered like up-to-date
+                  values
+                </li>
+              </ul>
+            </li>
+            <li>Selected: consider only variants selected in the explorer</li>
+          </ul>
+        </div>
+        <div class="d-flex align-self-center mt-3">
+          <div class="form-select-element">
+            <label class="col-form-label text-light dialog-label">
+              Considered Variants:
+            </label>
+            <select
+              class="form-select"
+              style="width: 200px"
+              [(ngModel)]="logExportConfig.variantSelectionMethod"
+            >
+              <option
+                *ngFor="let item of VariantSelectionMethod | enumToArray"
+                [value]="item.value"
+              >
+                {{ item.value }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="1" [disabled]="skipUserCreatedVariants">
+      <button ngbNavLink>User-created Variants</button>
+      <ng-template ngbNavContent>
+        <div>
+          Should user-created variants be included in the final event log?<br />
+          Since there is no real data available for them they will:
+          <ul>
+            <li>Have artificially generated timestamps for their events</li>
+            <li>
+              For non-concurrent variants, be represented by a single trace in
+              the exported event-log
+            </li>
+            <li>
+              For concurrent variants, each possible sequentilization has a
+              corresponding trace in the log
+            </li>
+          </ul>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label">
+            Include user-created variants
+          </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.includeUserCreatedVariants"
+            [disabled]="logExportConfig.includeTraceFragments"
+          />
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="2" [disabled]="skipTraceFragments">
+      <button ngbNavLink>Trace Fragments</button>
+      <ng-template ngbNavContent>
+        <div>
+          Should trace fragments such as pre-, in-, and suffixes be included in
+          the event log?<br />
+          <ul>
+            <li>They count towards the user-created variants</li>
+            <ul>
+              <li>
+                Therefore, other user-created variants will also be included,
+                unless they are not within the set of variants selected in the
+                first step
+              </li>
+            </ul>
+            <li>
+              Be treated as they were a normal trace, i.e. their fragment type
+              will be ignored
+            </li>
+          </ul>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Include trace fragments </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.includeTraceFragments"
+            (change)="onIncludeFragementsToggle()"
+          />
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="3">
+      <button ngbNavLink>Sequentialization</button>
+      <ng-template ngbNavContent>
+        <div>
+          Should all variants be sequentialized?<br />
+          This leads to:
+          <ul>
+            <li>Original traces are no longer contained in the log</li>
+            <li>Traces are synthesised with fake timestamps</li>
+            <li>Each trace will only occur once</li>
+            <li>
+              Each sequentialisation of a concurrent variant will include a
+              unique trace
+            </li>
+          </ul>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Sequentialize Variants </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.sequentializeVariants"
+          />
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="4">
+      <button ngbNavLink>Log Info</button>
+      <ng-template ngbNavContent>
+        <div>
+          This allows you to decide whether or not the exported log should have
+          the same global log level data as the original log.
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Include Original Log Info</label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.includeOriginalLogInfo"
+          />
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="5">
+      <button ngbNavLink>Log Type</button>
+      <ng-template ngbNavContent>
+        <div>
+          Should the exported be exported an interval log?
+          <ul>
+            <li>No:</li>
+            <ul>
+              <li>Log will be in lifecycle format</li>
+              <li>
+                Each activity will have two events with the attribute
+                <code>lifecycle:transition</code>:
+                <ul>
+                  <li>start</li>
+                  <li>complete</li>
+                </ul>
+              </li>
+            </ul>
+            <li>Yes:</li>
+            <ul>
+              <li>Log will be in interval format</li>
+              <li>
+                Each activity will be a single event having the attributes:
+                <ul>
+                  <li><code>start_timestamp</code> for the starting time</li>
+                  <li><code>time:timestamp</code> for the completion time</li>
+                </ul>
+              </li>
+            </ul>
+          </ul>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Convert log to interval </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.exportAsIntervalLog"
+          />
+        </div>
+      </ng-template>
+    </li>
+
+    <li [ngbNavItem]="6">
+      <button ngbNavLink>
+        <b>Summary</b>
+      </button>
+      <ng-template ngbNavContent>
+        <div class="form-select-element">
+          <label class="col-form-label text-light dialog-label">
+            Considered Variants:
+          </label>
+          <select
+            class="form-select"
+            style="width: 200px"
+            [(ngModel)]="logExportConfig.variantSelectionMethod"
+          >
+            <option
+              *ngFor="let item of VariantSelectionMethod | enumToArray"
+              [value]="item.value"
+            >
+              {{ item.value }}
+            </option>
+          </select>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <input
+            id="userCreatedVariantsSwitch"
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.includeUserCreatedVariants"
+            [disabled]="
+              logExportConfig.includeTraceFragments || skipUserCreatedVariants
+            "
+          />
+          <label class="form-check-label" for="userCreatedVariantsSwitch">
+            Include user-created variants
+          </label>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <input
+            id="traceFragmentSwitch"
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.includeTraceFragments"
+            (change)="onIncludeFragementsToggle()"
+            [disabled]="skipTraceFragments"
+          />
+          <label class="form-check-label" for="traceFragmentSwitch">
+            Include trace fragments
+          </label>
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Sequentialize variants </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.sequentializeVariants"
+          />
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Include original log info </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.includeOriginalLogInfo"
+          />
+        </div>
+        <div class="form-check form-switch mt-3">
+          <label class="form-check-label"> Export as interval log </label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [(ngModel)]="logExportConfig.exportAsIntervalLog"
+          />
+        </div>
+      </ng-template>
+    </li>
+  </ul>
+
+  <div [ngbNavOutlet]="nav" class="col-8 p-2" style="min-height: 250px"></div>
+</div>
+
+<div class="modal-footer h-line-modal-top d-flex justify-content-between">
+  <button
+    type="button"
+    class="button"
+    [disabled]="activeIndex === 0"
+    (click)="onBack(nav)"
+  >
+    Back
+  </button>
+  <button
+    type="button"
+    class="button"
+    *ngIf="activeIndex < lastPageIndex"
+    (click)="onNext(nav)"
+  >
+    Next
+  </button>
+  <button
+    type="button"
+    class="button"
+    *ngIf="activeIndex === lastPageIndex"
+    (click)="onExport()"
+  >
+    <i class="bi bi-save btn-icon text-success"></i>
+    Export
+  </button>
+</div>

@@ -1,0 +1,84 @@
+<div class="color-map" *ngIf="colorMapValues">
+  <ng-container
+    *ngFor="
+      let e of colorMapValues;
+      index as i;
+      last as isLast;
+      first as isFirst
+    "
+  >
+    <span
+      class="list-group-item"
+      style="height: 40px"
+      *ngIf="e.color !== null"
+      [ngStyle]="{
+        'margin-bottom': isFirst && firstColorDetached ? '30px' : '0',
+        'margin-top':
+          i === colorMapValues.length - 2 && lastColorDetached ? '30px' : '0',
+        background:
+          isFirst && firstColorStriped ? getCssStripes(e.color) : e.color
+      }"
+    >
+      <!--    lower bound   -->
+      <div
+        class="color-map-label"
+        *ngIf="
+          !(i === colorMapValues.length - 2 && lastColorDetached);
+          else lastDetachedLowerBound
+        "
+      >
+        {{ prefixes[i] }}
+        {{
+          timeBasedLabel
+            ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
+            : e.lowerBound
+        }}{{ suffix }}
+      </div>
+
+      <ng-template #lastDetachedLowerBound>
+        <div class="color-map-label">
+          {{ prefixes[i + 1] }}
+          {{
+            timeBasedLabel
+              ? (colorMapValues[i + 1].lowerBound
+                | humanizeDuration : false : true : 3 : true)
+              : colorMapValues[i + 1].lowerBound
+          }}{{ suffix }}
+        </div>
+      </ng-template>
+    </span>
+
+    <!--    upper bound   -->
+    <span
+      class="list-group-item"
+      *ngIf="isLast && !excludeUpperLabel && !lastColorDetached"
+      style="background: unset"
+    >
+      <div class="color-map-label">
+        {{ prefixes[i] }}
+        {{
+          timeBasedLabel
+            ? (e.lowerBound | humanizeDuration : false : true : 3 : true)
+            : e.lowerBound
+        }}{{ suffix }}
+      </div>
+    </span>
+
+    <!--    upper bound if lastColorDetached   -->
+    <span
+      class="list-group-item"
+      *ngIf="i === colorMapValues.length - 3 && lastColorDetached"
+      style="background: unset"
+    >
+      <div class="color-map-label">
+        {{ prefixes[i + 1] }}
+        {{
+          timeBasedLabel
+            ? (colorMapValues[i + 1].lowerBound
+              | humanizeDuration : false : true : 3 : true)
+            : colorMapValues[i + 1].lowerBound
+        }}{{ suffix }}
+      </div>
+    </span>
+  </ng-container>
+</div>

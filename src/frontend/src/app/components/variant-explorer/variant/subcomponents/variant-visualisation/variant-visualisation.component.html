@@ -1,0 +1,38 @@
+<div
+  class="variant d-flex flex-column"
+  [ngStyle]="{
+                        'border-color': variant.isSelected
+                          ? 'unset'
+                          : 'transparent'
+                      }"
+  style="white-space: nowrap"
+>
+  <div *ngIf="arcsRenderingInProgress" class="full-body-spinner">
+    <div class="svg-rendering-status">
+      <div class="spinner-border spinner-border-sm" role="status"></div>
+    </div>
+  </div>
+
+  <svg
+    #arcDiagram="arcDiagram"
+    appArcDiagram
+    [variant]="variant"
+    [style.display]="arcsViewMode==ArcsViewMode.SHOW_ALL ? 'block' : 'none'"
+  >
+    <g id="arcGroup"></g>
+  </svg>
+
+  <svg
+    appVariantDrawer
+    #drawer="variantDrawer"
+    [variant]="variant"
+    [onClickCbFc]="variantClickCallBack"
+    [onRightMouseClickCbFc]="openContextCallback"
+    [traceInfixSelectionMode]="traceInfixSelectionMode"
+    [computeActivityColor]="computeActivityColor"
+    [infixType]="variant.infixType"
+    (redrawArcsIfComputed)="arcsViewMode !== ArcsViewMode.HIDE_ALL && drawArcs()"
+    class="zoom-group-variant"
+    style="display: inline-block"
+  ></svg>
+</div>

@@ -1,0 +1,97 @@
+<td #row style="text-align: center">{{ index + 1 }}.</td>
+
+<ng-container *ngIf="isVisible; else loadingPlaceholder">
+  <td>
+    <div [ngTemplateOutlet]="variantInfo"></div>
+  </td>
+
+  <td>
+    <ng-container [ngTemplateOutlet]="subvariantButton"> </ng-container>
+  </td>
+
+  <td
+    *ngIf="
+      processTreeAvailable && variantViewModeService.viewMode !== VM.STANDARD
+    "
+    style="text-align: center"
+  >
+    <div [ngTemplateOutlet]="treeButton"></div>
+  </td>
+  <td
+    *ngIf="
+      processTreeAvailable && variantViewModeService.viewMode !== VM.STANDARD
+    "
+  >
+    <small
+      *ngIf="
+        variantViewModeService.viewMode === VM.CONFORMANCE &&
+        isTreeConformanceActive
+      "
+      class="tree-statistic-chip"
+      [style.background]="conformanceButtonColor"
+      [style.color]="conformanceTextColor"
+    >
+      {{ (treeConformanceValue * 100).toFixed(2) }}%
+    </small>
+    <small
+      class="tree-statistic-chip"
+      [style.background]="performanceButtonColor"
+      [style.color]="performanceTextColor"
+      *ngIf="
+        variantViewModeService.viewMode === VM.PERFORMANCE &&
+        isTreePerformanceActive
+      "
+    >
+      {{ treePerformanceValue | humanizeDuration : false : true : 3 : true }}
+    </small>
+  </td>
+
+  <td class="variant-cell">
+    <ng-container
+      *ngIf="
+        !(
+          variant.userDefined &&
+          variantViewModeService.viewMode === VM.PERFORMANCE
+        );
+        else noPerformance
+      "
+    >
+      <ng-container [ngTemplateOutlet]="variantDrawer"> </ng-container>
+    </ng-container>
+
+    <ng-template #noPerformance>
+      <tspan class="ms-2"> Performance not available </tspan>
+    </ng-template>
+  </td>
+
+  <td
+    *ngIf="
+      traceInfixSelectionMode && variantViewModeService.viewMode === VM.STANDARD
+    "
+    class="infix-selection-buttons-panel"
+  >
+    <ng-container [ngTemplateOutlet]="infixSelection"> </ng-container>
+  </td>
+
+  <td
+    *ngIf="
+      !traceInfixSelectionMode &&
+      variantViewModeService.viewMode !== VM.PERFORMANCE
+    "
+    class="fixed-right"
+    style="padding-left: 0px"
+  >
+    <ng-container [ngTemplateOutlet]="removeVariantButton"></ng-container>
+  </td>
+</ng-container>
+
+<ng-template #loadingPlaceholder>
+  <td>
+    <div
+      class="variant-spacer"
+      [ngStyle]="{ height: variant.variant.getHeight() + 'px' }"
+    >
+      Loading...
+    </div>
+  </td>
+</ng-template>

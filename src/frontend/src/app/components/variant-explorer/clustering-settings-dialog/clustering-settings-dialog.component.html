@@ -1,0 +1,133 @@
+<div class="modal-header h-line-modal-bottom">
+  <h5 class="modal-title text-light" id="clusteringSettingsLabel">
+    Variant Clustering Settings
+  </h5>
+
+  <span style="margin-left: 37%">
+    <i
+      class="bi bi-question-circle-fill font-large ms-1 align-middle secondary-text cursor-help question-icon"
+      container="body"
+      (click)="openDocumentation('Variant Clustering')"
+    ></i>
+  </span>
+
+  <button
+    type="button"
+    class="btn-close btn-close-white"
+    (click)="modal.dismiss('Cross click')"
+    aria-label="Close"
+  ></button>
+</div>
+
+<div class="modal-body">
+  <div class="d-flex flex-column">
+    <div class="form-select-element">
+      <label ngbAutofocus class="input-label">Clustering Method: </label>
+      <select
+        [(ngModel)]="selectedClusteringAlgorithm"
+        class="form-select input-selector cursor-pointer"
+      >
+        <option *ngFor="let algo of options" [ngValue]="algo" selected>
+          {{ getDisplayName(algo) }}
+        </option>
+      </select>
+    </div>
+    <div
+      class="form-select-element"
+      *ngIf="
+        selectedClusteringAlgorithm === 'AGGLOMERATIVE_EDIT_DISTANCE_CLUSTERING'
+      "
+    >
+      <label for="maxDistance" class="input-label"
+        >Max. Variant Edit Distance Within a Cluster:
+      </label>
+      <input
+        id="maxDistance"
+        type="number"
+        class="input-field-number"
+        [(ngModel)]="maxDistance"
+        aria-describedby="nSeqHelp"
+        placeholder="max distance"
+        min="0"
+      />
+    </div>
+    <div class="form-select-element" *ngIf="usesNumberOfClusters()">
+      <label for="nClusters" class="input-label">Number of Clusters: </label>
+      <input
+        id="nClusters"
+        type="number"
+        class="input-field-number"
+        [(ngModel)]="nClusters"
+        aria-describedby="nSeqHelp"
+        placeholder="n clusters"
+        min="1"
+        [max]="numberOfVariants"
+      />
+    </div>
+    <ng-container *ngIf="selectedClusteringAlgorithm === 'HRR_CLUSTERING'">
+      <div class="form-select-element">
+        <label
+          for="order"
+          class="input-label"
+          ngbTooltip="Off: where an activity sits no longer counts, so neither the order nor what runs in parallel does"
+          container="body"
+          >Order:
+        </label>
+        <select
+          id="order"
+          [(ngModel)]="order"
+          class="form-select input-selector cursor-pointer"
+        >
+          <option *ngFor="let level of levels" [ngValue]="level.value">
+            {{ level.name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-select-element">
+        <label
+          for="nesting"
+          class="input-label"
+          ngbTooltip="Off: how deep an activity sits inside parallel blocks no longer counts"
+          container="body"
+          >Nesting:
+        </label>
+        <select
+          id="nesting"
+          [(ngModel)]="nesting"
+          class="form-select input-selector cursor-pointer"
+        >
+          <option *ngFor="let level of levels" [ngValue]="level.value">
+            {{ level.name }}
+          </option>
+        </select>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<div class="modal-footer h-line-modal-top">
+  <button
+    type="button"
+    class="button"
+    data-bs-dismiss="modal"
+    (click)="onReset()"
+  >
+    <i class="bi bi-arrow-clockwise btn-icon text-danger"></i>
+    Reset
+  </button>
+
+  <button
+    type="button"
+    class="button"
+    data-bs-dismiss="modal"
+    (click)="modal.dismiss('cancel click')"
+  >
+    <i class="bi bi-x-lg btn-icon text-danger"></i>
+    Close
+  </button>
+
+  <button type="button" class="button" (click)="onApply()">
+    <i class="bi bi-save btn-icon text-success"></i>
+    Apply
+  </button>
+</div>

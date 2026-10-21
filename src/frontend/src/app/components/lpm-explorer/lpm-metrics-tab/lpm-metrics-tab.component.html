@@ -1,0 +1,86 @@
+<div *ngIf="metrics === null">
+  <app-unavailable-info>
+    Mine an eventually follows patterns using the Variant Miner and click
+    <i class="bi bi-graph-up text-white"></i> to calculate statistics.
+  </app-unavailable-info>
+</div>
+<div *ngIf="metrics !== null">
+  <table
+    class="table table-sm table-striped table-dark table-hover table-bordered mb-0"
+    style="font-size: small; table-layout: fixed"
+  >
+    <thead>
+      <tr>
+        <th colspan="2">Metrics</th>
+      </tr>
+    </thead>
+    <tbody class="no-top-border">
+      <tr>
+        <td>Support (Tax et al.):</td>
+        <td>
+          {{ metrics.support | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Transaction Support:</td>
+        <td>
+          {{ metrics.supportTrans | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Occurrence Support:</td>
+        <td>
+          {{ metrics.supportOcc | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Confidence:</td>
+        <td>
+          {{ metrics.confidence | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Precision:</td>
+        <td>
+          {{ metrics.precision | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Coverage:</td>
+        <td>
+          {{ metrics.coverage | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Simplicity:</td>
+        <td>
+          {{ metrics.simplicity | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Skip Precision:</td>
+        <td>
+          {{ metrics.skipPrecision | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Mean Range:</td>
+        <td>
+          {{ metrics.meanRange | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Min Range:</td>
+        <td>
+          {{ metrics.minRange | number : "1.2" }}
+        </td>
+      </tr>
+      <tr>
+        <td>Max Range:</td>
+        <td>
+          {{ metrics.maxRange | number : "1.2" }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

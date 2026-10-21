@@ -1,0 +1,114 @@
+.main-variant-explorer {
+  overflow: auto;
+  background-color: var(--box-background-color);
+}
+
+.chart-variant-percentage {
+  margin-left: 4px;
+  display: inline-flex;
+  flex-direction: column;
+
+  /*
+  min-width: 50px;
+  */
+  font-size: .8rem;
+  color: whitesmoke;
+  color: var(--text-secondary);
+}
+
+:host {
+  position: absolute;
+  overflow: hidden;
+}
+
+.variant-info-cell {
+  align-items: center;
+  display: flex;
+}
+
+.btn-tool-bar{
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  border-top: 0;
+    position: sticky;
+    top: 0;
+  left: 0;
+}
+
+.variant-cell {
+  width: 100%;
+}
+
+.variant {
+  padding: 5px;
+  width: fit-content;
+  cursor: pointer;
+}
+
+.svg-rendering-status {
+  color: var(--text-secondary);
+}
+
+
+/* Move all below to central place - also used in variant explorer */
+
+.container-variant-explorer {
+  min-height: 100%;
+  width: calc(100% - 20px);
+  position: relative;
+  border-left: 1px solid var(--thin-border-color);
+  margin-left: 20px;
+}
+
+.activity-overview-container {
+background-color: var(--box-background-color);
+}
+
+.table-font{
+font-size: small;
+}
+
+.resizeable-header-element{
+padding : 0.2rem;
+}
+
+.table-header-sort-group{
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+.table-container {
+overflow: auto auto;
+background-color: var(--box-background-color);
+}
+
+.toggle-select{
+cursor : pointer;
+}
+
+thead th {
+vertical-align: top;
+}
+
+thead tr:nth-child(1) th {
+position: static;
+top: 0;
+z-index: 10;
+}
+
+tbody tr {
+padding-bottom: .25rem;
+padding-top: .25rem;
+}
+
+.border-color {
+border-color: var(--line-color)!important;
+}
+
+.activity-overview-table-header {
+position: sticky;
+top: 0;
+z-index: auto;
+}
